@@ -13,6 +13,7 @@ int gets(char s[ ])
     {
         putc(*s++);
     }
+    prints("\n\r");
     *s = '\0';
 }
 
@@ -24,7 +25,7 @@ main()
      gets(name);
      if (name[0]==0)
         break;
-     prints(" Welcome "); prints(name); prints("\n\r");
+     prints("Welcome "); prints(name); prints("\n\r");
    }
    prints("return to assembly and hang\n\r");
 }

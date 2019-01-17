@@ -1,75 +1,39 @@
-        BOOTSEG =  0x9000        ! Boot block is loaded again to here.
-        SSP      =   8192        ! Stack pointer at SS+8KB
-	
-        .globl _main,_prints              ! IMPORT symbols
-        .globl _getc,_putc                ! EXPORT symbols
-
-	.globl _readfd,_setes,_inces,_error  
+!============================================================================
+        .globl _main,_prints,_color             ! IMPORT symbols
+        .globl _getc,_putc,_readfd,_error       ! EXPORT symbols
 	                                                
-        !-------------------------------------------------------
-        ! Only one SECTOR loaded at (0000,7C00). Get entire BLOCK in
-        !-------------------------------------------------------
-        mov  ax,#BOOTSEG    ! set ES to 0x9000
+        mov  ax,#0x9000     ! set ES to 0x9000
         mov  es,ax
         xor  bx,bx          ! clear BX = 0
 
-        !---------------------------------------------------
-        !  diskio[0,0] to read boot BLOCK to [0x9000,0]     
-        !---------------------------------------------------
+        
         xor  dx,dx          ! drive 0, head 0
-        xor  cx,cx
+        xor  cx,cx          ! cyl 0,   sector 0
         incb cl             ! cyl 0, sector 1
         mov  ax, #0x0202    ! READ 1 block
         int  0x13
 
-        jmpi    start,BOOTSEG           ! CS=BOOTSEG, IP=start
+        jmpi    start,0x9000            ! CS=0x9000, IP=start
 
 start:                    
         mov     ax,cs                   ! Set segment registers for CPU
         mov     ds,ax                   ! we know ES,CS=0x9000. Let DS=CS  
         mov     ss,ax                   ! SS = CS ===> all point at 0x9000
         mov     es,ax
-        mov     sp,#SSP                 ! SP = 8KB above SS=0x9000
+        mov     sp,#8192                ! SP = 8KB above SS=0x9000
 
         mov     ax,#0x0012              ! 640x480 color     
 	int     0x10 
 	
         call _main                      ! call main() in C
-     
-        test ax, ax
-	je  _error 
-
+  
         jmpi 0,0x1000
  
 
 !======================== I/O functions =================================
-
-        !---------------------------------------------
-        !  char getc()   function: returns a char
-        !---------------------------------------------
-_getc:
-        xorb   ah,ah           ! clear ah
-        int    0x16            ! call BIOS to get a char in AX
-        ret 
-
-        !----------------------------------------------
-        ! void putc(char c)  function: print a char
-        !----------------------------------------------
-_putc:           
-        push   bp
-	mov    bp,sp
-	
-        movb   al,4[bp]        ! get the char into aL
-        movb   ah,#14          ! aH = 14
-        movb   bl,#0x0D        ! bL = cyan color 
-        int    0x10            ! call BIOS to display the char
-
-        pop    bp
-	ret
-
        !---------------------------------------
        ! readfd(cyl, head, sector, buf)
-       !         4     6     8     10
+       !        4     6     8      10
        !---------------------------------------
 _readfd:                             
         push  bp
@@ -88,21 +52,30 @@ _readfd:
 
         pop  bp                
 	ret
-        
-_setes: push  bp
-        mov   bp,sp
+		
+        !---------------------------------------------
+        !  char getc()   function: returns a char
+        !---------------------------------------------
+_getc:
+        xorb   ah,ah           ! clear ah
+        int    0x16            ! call BIOS to get a char in AX
+        ret 
 
-        mov   ax,4[bp]        
-        mov   es,ax
+        !----------------------------------------------
+        ! void putc(char c)  function: print a char
+        !----------------------------------------------
+_putc:           
+        push   bp
+	mov    bp,sp
+	
+        movb   al,4[bp]        ! get the char into aL
+        movb   ah,#14          ! aH = 14
+!        movb   bl,#0x0D        ! bL = cyan color 
+        movb   bl, _color
+        int    0x10            ! call BIOS to display the char
 
-	pop   bp
+        pop    bp
 	ret
-	   
-_inces:                         ! inces() inc ES by 0x40, or 1K
-        mov   ax,es
-        add   ax,#0x40
-        mov   es,ax
-        ret
 
         !------------------------------
         !       error & reboot
