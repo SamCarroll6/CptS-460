@@ -1,11 +1,19 @@
 int prints(char *s)
 {
-    call putc(c) to print string s;
+    while(*s)
+    {
+        putc(*s);
+        *s++;
+    }
 }
 
 int gets(char s[ ])
 {
-    call getc() to input a string into s[ ]
+    while((*s = getc()) != '\r')
+    {
+        putc(*s++);
+    }
+    *s = '\0';
 }
 
 main()
@@ -16,7 +24,7 @@ main()
      gets(name);
      if (name[0]==0)
         break;
-     prints("Welcome "); prints(name); prints("\n\r");
+     prints(" Welcome "); prints(name); prints("\n\r");
    }
    prints("return to assembly and hang\n\r");
 }
