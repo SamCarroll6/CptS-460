@@ -5,6 +5,23 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned long u32;
 
+#define TRK 18
+#define CYL 36
+#define BLK 1024
+
+typedef struct ext2_group_desc  GD;
+typedef struct ext2_inode       INODE;
+typedef struct ext2_dir_entry_2 DIR;
+
+GD    *gp;
+INODE *ip;
+DIR   *dp;
+
+char buf1[BLK], buf2[BLK];
+int color = 0x0A;
+u8 ino;
+
+
 struct ext2_inode {
 	u16	i_mode;		/* File mode */
 	u16	i_uid;		/* Owner Uid */
@@ -17,7 +34,8 @@ struct ext2_inode {
 	u16	i_links_count;	/* Links count */
 	u32	i_blocks;	/* Blocks count */
 	u32	i_flags;	/* File flags */
-    u32     dummy;
+    
+	u32     dummy;
 	u32	i_block[15];    /* Pointers to blocks */
     u32     pad[7];         /* inode size MUST be 128 bytes */
 };
