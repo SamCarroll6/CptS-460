@@ -1,8 +1,8 @@
         BOOTSEG =  0x9000        ! Boot block is loaded again to here.
         SSP      =   8192        ! Stack pointer at SS+8KB
 	
-        .globl _main,_prints                                           ! IMPORT symbols
-        .globl _getc,_putc, _readfd,_setes,_inces,_error               ! EXPORT symbols  
+        .globl _main,_prints                                          ! IMPORT symbols
+        .globl _getc,_putc,_readfd,_setes,_inces,_error               ! EXPORT symbols  
 	                                                
         !-------------------------------------------------------
         ! Only one SECTOR loaded at (0000,7C00). Get entire BLOCK in
