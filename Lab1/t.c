@@ -4,7 +4,7 @@ main()
 {
   u16 i, iblk, offset, blk;
   u32 *up;
-  char c, temp[64];
+  char c, temp[64], buf3[BLK];
 
   char file1[10], file2[10];
 
@@ -26,52 +26,47 @@ main()
 
   // Find /boot in root
   i = search(ip, file1);
-  getc();
+  //getc();
   blk = (i / 8) + iblk;
   offset = i % 8;
   getblk(blk, buf1);
   ip = (INODE *)buf1 + offset;
 
   i = search(ip, file2);
-  getc();
-  // blk = (i / 8) + iblk;
-  // offset = i % 8;
-  // getblk(blk, buf1);
-  // ip = (INODE *)buf1 + offset;
+  //getc();
+  blk = (i / 8) + iblk;
+  offset = i % 8;
+  getblk(blk, buf1);
+  ip = (INODE *)buf1 + offset;
 
-  // // Write YOUR C code to get the INODE of /boot/mtx
-  // // INODE *ip --> INODE
-  // blk = 0;
-  // //  if INODE has indirect blocks: get i_block[12] int buf2[  ]
-  // if (ip->i_block[12] != 0)
-  // {
-  //   getblk((u16)ip->i_block[12], buf2);
-  //   blk = 1;
-  // }
+  // Write YOUR C code to get the INODE of /boot/mtx
+  // INODE *ip --> INODE
+  //  if INODE has indirect blocks: get i_block[12] int buf2[  ]
+  getblk((u16)ip->i_block[12], buf3);
 
-  // setes(0x1000); // MTX loading segment = 0x1000
+  setes(0x1000); // MTX loading segment = 0x1000
 
-  // // load 12 DIRECT blocks of INODE into memory
-  // for (i = 0; i < 12; i++)
-  // {
-  //   getblk((u16)ip->i_block[i], 0);
-  //   putc('*');
-  //   inces();
-  //   getc();
-  // }
+  // load 12 DIRECT blocks of INODE into memory
+  for (i = 0; i < 12; i++)
+  {
+    getblk((u16)ip->i_block[i], 0);
+    putc('*');
+    inces();
+    getc();
+  }
 
-  // if (blk)
-  // {
-  //   up = (u32 *)buf2;
-  //   // load INDIRECT blocks, if any, into memory
-  //   while (*up)
-  //   {
-  //     getblk((u16)*up, 0);
-  //     putc('.');
-  //     inces();
-  //     up++;
-  //   }
-  // }
+  if (ip->i_block[12])
+  {
+    up = (u32 *)buf3;
+    // load INDIRECT blocks, if any, into memory
+    while (*up)
+    {
+      getblk((u16)*up, 0);
+      putc('.');
+      inces();
+      up++;
+    }
+  }
 
   prints("go?");
   getc();

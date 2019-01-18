@@ -1,3 +1,5 @@
+cp ~/Downloads/mtximage ./mtximage
+
 as86 -o bs.o bs.s
 
 bcc -c -ansi t.c

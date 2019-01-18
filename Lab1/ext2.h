@@ -87,9 +87,8 @@ u16 getblk(u16 blk, char *buf)
 // Will modify code from Lab1.2 to find given name
 u16 search(INODE *pip, char *name)
 {
-  u16    i, iblk, count, size;
-  char   c, temp[64];
-
+  u16    i, iblk;
+  char   *c, temp[64];
 // Step through the iblocks 0-11 (the direct iblocks)
    for(i = 0; i < 12; i++)
    {
@@ -97,12 +96,13 @@ u16 search(INODE *pip, char *name)
        {
            break;
        }
-	   size = BLK;
+	   
 // Get block for each block in given inode
        getblk((u16)pip->i_block[i], buf2);
+	   c = buf2;
        dp = (DIR*)buf2;
 // Search block for name match
-       while(count < size && dp->inode)
+       while(c < &buf2[BLK])
        {
            memcpy(temp, dp->name, dp->name_len);
            temp[dp->name_len] = '\0';
@@ -114,8 +114,9 @@ u16 search(INODE *pip, char *name)
 		   }
 		   prints(temp);
 		   putc(' ');
-           count += dp->rec_len;
-           dp = (DIR*)((char*)dp + dp->rec_len);
+           c += dp->rec_len;
+           dp = (DIR*)c;
+		   getc();
        }
    }
 // Return error if not found
