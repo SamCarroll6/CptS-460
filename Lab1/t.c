@@ -34,18 +34,21 @@ main()
 
   i = search(ip, file2);
   //getc();
-  // blk = (i / 8) + iblk;
-  // offset = i % 8;
-  getblk(9, buf1);
-  ip = (INODE *)buf1 + 1;
+  blk = (i / 8) + iblk;
+  offset = i % 8;
+  getblk(blk, buf1);
+  ip = (INODE *)buf1 + offset;
   // Write YOUR C code to get the INODE of /boot/mtx
   // INODE *ip --> INODE
   //  if INODE has indirect blocks: get i_block[12] int buf2[  ]
   // getblk((u16)ip->i_block[12], buf3);
 
+  i = ip->i_block[12];
+  getblk(i, buf3);
+
   setes(0x1000); // MTX loading segment = 0x1000
 
-  // // load 12 DIRECT blocks of INODE into memory
+  // load 12 DIRECT blocks of INODE into memory
   for (i = 0; i < 12; i++)
   {
     getblk(ip->i_block[i], 0);
@@ -56,8 +59,6 @@ main()
 
   if (ip->i_block[12])
   {
-    i = ip->i_block[12];
-    getblk(i, buf3);
     up = (u32 *)buf3;
     // load INDIRECT blocks, if any, into memory
     while (*up)
