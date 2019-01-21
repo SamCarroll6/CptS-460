@@ -34,8 +34,8 @@ start:
 	
         call _main                      ! call main() in C
      
-        test ax, ax
-	je  _error 
+     !   test ax, ax
+     !	 je  _error 
 
         jmpi 0,0x1000
  

@@ -68,17 +68,6 @@ u16 prints(char *s)
     }
 }
 
-
-u16 gets(char *s) 
-{
-    while((*s = getc()) != '\r')
-    {
-        putc(*s++);
-    }
-    *s = '\0';
-}
-
-
 u16 getblk(u16 blk, char *buf)
 {
     readfd( (2*blk)/CYL, ( (2*blk)%CYL)/TRK, ((2*blk)%CYL)%TRK, buf);
@@ -109,20 +98,14 @@ u16 search(INODE *pip, char *name)
 // If found return inode number
 		   if(!strcmp(temp, name))
 		   {
-			  prints(temp); putc('\n'); putc('\r');
 			  return (u16)(dp->inode - 1);
 		   }
-		   prints(temp);
-		   putc(' ');
            c += dp->rec_len;
            dp = (DIR*)c;
-		   getc();
        }
    }
 // Return error if not found
-   prints("Error: name could not be found\n\r");
    error();
-   return -1;
 }
 
 #endif

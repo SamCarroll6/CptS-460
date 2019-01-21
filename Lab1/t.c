@@ -6,10 +6,6 @@ main()
   u32 *up;
   char c, temp[64], buf3[BLK];
 
-  char file1[10], file2[10];
-
-  strcpy(file1, "boot");
-  strcpy(file2, "mtx");
   // Read block 2 to get the inode starting block
   getblk(2, buf1);
 
@@ -25,14 +21,14 @@ main()
   ip = (INODE *)buf1 + 1;
 
   // Find /boot in root
-  i = search(ip, file1);
+  i = search(ip, "boot");
   //getc();
-  // blk = (i / 8) + iblk;
-  // offset = i % 8;
-  getblk(6, buf1);
-  ip = (INODE *)buf1 + 4;
+  blk = (i / 8) + iblk;
+  offset = i % 8;
+  getblk(blk, buf1);
+  ip = (INODE *)buf1 + offset;
 
-  i = search(ip, file2);
+  i = search(ip, "mtx");
   //getc();
   blk = (i / 8) + iblk;
   offset = i % 8;
@@ -54,7 +50,6 @@ main()
     getblk(ip->i_block[i], 0);
     putc('*');
     inces();
-    getc();
   }
 
   if (ip->i_block[12])
