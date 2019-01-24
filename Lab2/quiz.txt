@@ -37,7 +37,7 @@ Each char is a 16 x 8 bitmap:  ........   in which a 1-bit  means WHITE pixel
 (2). Explain: How is an ASCII char c displayed at (row, col) = (x, y)?
      HELP: read the code of dchar() and setpix()
 
-
+    
   
 
 

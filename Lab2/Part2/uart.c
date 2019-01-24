@@ -123,3 +123,29 @@ int fuprintf(UART *up, char *fmt, ...)
         cp++;
     }
 }
+
+int uprintf(char *fmt,...)
+{
+  int *ip;
+  char *cp;
+  cp = fmt;
+  ip = (int *)&fmt + 1;
+
+  UART *up = &uart[0];
+
+  while(*cp){
+    if (*cp != '%'){
+      uputc(up, *cp);
+      cp++;
+      continue;
+    }
+    cp++;
+    switch(*cp){
+    case 'c': uputc(up, (char)*ip);      break;
+    case 's': uprints(up, (char *)*ip);  break;
+    case 'd': uprinti(up, *ip);          break;
+    case 'x': uprintuh(up, *ip);          break;
+    }
+    cp++; ip++;
+  }
+}

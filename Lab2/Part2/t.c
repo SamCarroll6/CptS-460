@@ -25,14 +25,14 @@ int main()
 
    p = &_binary_wsu_bmp_start;
    //reduce = i;
-   show_bmp(p, 0, 0, i); 
+   //show_bmp(p, 0, 0, i); 
 
    while(1){
      if(i > 4)
      {
          i = 1;
      }
-     //kprintf("enter a key from this UART : ");
+     uprintf("enter a key from this UART : ");
      ugetc(up);
      p = &_binary_wsu_bmp_start;
      show_bmp(p, 0, 0, i);

@@ -322,11 +322,34 @@ int show_bmp(char *p, int startRow, int startCol, int reduce)
    int *q = (int *)(p+14); // skip over 14 bytes file header 
    q++;                    // skip 4 bytes in image header
    w = *q;                 // width in pixels 
-   h = *(q + 1);           // height in pixels
+   h = *(q + 1);
+   switch (reduce)
+   {
+   case 1:
+     color = 0x00000000;
+     break;
+   case 2:
+     color = 0x000000FF;
+     break;
+   case 3:
+     color = 0x00FF0000;
+     break;
+   case 4:
+     color = 0x0000FF00;
+     break;
+   } // height in pixels
+   for (i = startRow; i < 480; i += 1)
+   {
+     for (j = startCol; j < 640; j += 1)
+     {
+       fb[(i) * 640 + (j)] = color;
+     }
+   }
+  
+   h2 = h / reduce;
+   w2 = w / reduce;
    if (reduce > 1)
    {
-       h2 = h / reduce;
-       w2 = w / reduce;
        startRow = (480 - h2);
        startCol = (640 - w2);
    }
@@ -336,6 +359,7 @@ int show_bmp(char *p, int startRow, int startCol, int reduce)
    r1 = 3*w;
    r2 = 4*((3*w+3)/4);     // row size is a multiple of 4 bytes  
    p += (h-1)*r2;
+
 
    for (i = startRow; i < h + startRow; i += 1)
    {
@@ -351,5 +375,5 @@ int show_bmp(char *p, int startRow, int startCol, int reduce)
        }
        p -= r2;
    }
-   //kprintf("\nBMP image height=%d width=%d\n", h, w);
+   uprintf("\n\rBMP image height=%d width=%d\n\r", h2, w2);
 }
