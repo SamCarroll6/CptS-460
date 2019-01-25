@@ -13,8 +13,6 @@ arm-none-eabi-gcc -c -mcpu=arm926ej-s -g t.c -o t.o
 # 3. What does the following statement do? 
 # Link our new .o files (ts.o and t.o) to a t.elf file.
 
-# arm-none-eabi-ld -T t.ld ts.o t.o -o t.elf
-
 arm-none-eabi-ld -T t.ld -L $LIBPATH ts.o t.o -o t.elf -lgcc 
 
 # 4. What does the following statement do?
