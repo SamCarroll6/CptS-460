@@ -44,6 +44,8 @@ int shifted = 0;
 int release = 0;
 int control = 0;
 
+int held[N_SCAN] = {0};
+
 int kbd_init()
 {
   KBD *kp = &kbd;
@@ -80,20 +82,26 @@ void kbd_handler()
   //printf("scanCode = %x\n", scode);
 
   if (scode == 0xF0){       // key release 
-     release = 1;           // set flag
+     //release = 1;           // set flag
      return;
   }
   
-  if (release && scode){    // next scan code following key release
-     release = 0;           // clear flag 
+  if (held[scode] == 1 && scode){    // next scan code following key release
+     held[scode] = 0;
+     //release = 0;           // clear flag 
      return;
   }
 
-  if (!shifted)            
-     c = ltab[scode];
-  else               // ONLY IF YOU can catch LEFT or RIGHT shift key
+  held[scode] = 1;
+
+  if(scode == 0x12 || scode == 0x59)
+    return;
+
+  if (held[0x12] == 1 || held[0x59] == 1)            
      c = utab[scode];
-  
+  else               // ONLY IF YOU can catch LEFT or RIGHT shift key
+     c = ltab[scode];
+
   printf("c=%x %c\n", c, c);
   
   kp->buf[kp->head++] = c;
