@@ -94,13 +94,26 @@ void kbd_handler()
 
   held[scode] = 1;
 
-  if(scode == 0x12 || scode == 0x59)
+  if(scode == 0x12 || scode == 0x59 || scode == 0x14)
     return;
 
-  if (held[0x12] == 1 || held[0x59] == 1)            
+  if(held[0x14] == 1 && ltab[scode] == 'c') // if control held and 'c' pressed
+  {
+    printf("Control-c Key\n");
+    return;
+  }
+  else if(held[0x14] == 1 && ltab[scode] == 'd') // if control held and 'd' pressed
+  {
+     c = 0x4;
+  }
+  else if (held[0x12] == 1 || held[0x59] == 1)  // If shift key held
+  {          
      c = utab[scode];
-  else               // ONLY IF YOU can catch LEFT or RIGHT shift key
+  }
+  else  // No significant keys held               
+  {
      c = ltab[scode];
+  }
 
   printf("c=%x %c\n", c, c);
   
