@@ -44,7 +44,7 @@ int shifted = 0;
 int release = 0;
 int control = 0;
 
-int held[N_SCAN] = {0};
+int held[128] = {0};
 
 int kbd_init()
 {
@@ -107,7 +107,7 @@ void kbd_handler()
      c = 0x4;
   }
   else if (held[0x12] == 1 || held[0x59] == 1)  // If shift key held
-  {          
+  {         
      c = utab[scode];
   }
   else  // No significant keys held               
