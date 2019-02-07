@@ -104,7 +104,7 @@ void kbd_handler()
   }
   else if(held[0x14] == 1 && ltab[scode] == 'd') // if control held and 'd' pressed
   {
-     c = 0x4;
+     c = 0x04;
   }
   else if (held[0x12] == 1 || held[0x59] == 1)  // If shift key held
   {         
