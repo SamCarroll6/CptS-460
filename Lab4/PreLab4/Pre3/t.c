@@ -1,7 +1,5 @@
-/*********** t.c file of A Multitasking System *********/
-#include <stdio.h>
-#include "string.h"
 #include "type.h"
+#include "string.c"
 
 PROC proc[NPROC];      // NPROC PROCs
 PROC *freeList;        // freeList of PROCs 
@@ -9,8 +7,16 @@ PROC *readyQueue;      // priority queue of READY procs
 PROC *running;         // current running proc pointer
 
 PROC *sleepList;       // list of SLEEP procs
+int procsize = sizeof(PROC);
 
-#include "queue.c"     // include queue.c file
+#define printf kprintf
+#define gets kgets
+
+#include "kbd.c"
+#include "vid.c"
+#include "exceptions.c"
+
+#include "queue.c"
 #include "wait.c"      // include wait.c file
 
 /*******************************************************
@@ -19,6 +25,33 @@ PROC *sleepList;       // list of SLEEP procs
 ********************************************************/
 int body(), tswitch(), do_sleep(), do_wakeup(), do_exit(), do_switch();
 int do_kfork();
+int scheduler();
+
+int kprintf(char *fmt, ...);
+
+void copy_vectors(void) {
+    extern u32 vectors_start;
+    extern u32 vectors_end;
+    u32 *vectors_src = &vectors_start;
+    u32 *vectors_dst = (u32 *)0;
+    while(vectors_src < &vectors_end)
+       *vectors_dst++ = *vectors_src++;
+}
+
+void IRQ_handler()
+{
+    int vicstatus, sicstatus;
+    int ustatus, kstatus;
+
+    // read VIC SIV status registers to find out which interrupt
+    vicstatus = VIC_STATUS;
+    sicstatus = SIC_STATUS;  
+    if (vicstatus & 0x80000000){ // SIC interrupts=bit_31=>KBD at bit 3 
+       if (sicstatus & 0x08){
+          kbd_handler();
+       }
+    }
+}
 
 // initialize the MT system; create P0 as initial running process
 int init() 
@@ -50,9 +83,9 @@ int init()
 
 int menu()
 {
-  printf("****************************************\n");
-  printf(" ps fork switch exit jesus sleep wakeup \n");
-  printf("****************************************\n");
+  printf("**********************************\n");
+  printf(" ps fork switch exit sleep wakeup \n");
+  printf("**********************************\n");
 }
 
 char *status[ ] = {"FREE", "READY", "SLEEP", "ZOMBIE"};
@@ -72,22 +105,6 @@ int do_ps()
       printf("%s\n", status[p->status]);
   }
 }
-
-int do_jesus()
-{
-  int i;
-  PROC *p;
-  printf("Jesus perfroms miracles here\n");
-  for (i=1; i<NPROC; i++){
-    p = &proc[i];
-    if (p->status == ZOMBIE){
-      p->status = READY;
-      enqueue(&readyQueue, p);
-      printf("raised a ZOMBIE %d to live again\n", p->pid);
-    }
-  }
-  printList("readyQueue", readyQueue);
-}
     
 int body()   // process body function
 {
@@ -96,16 +113,13 @@ int body()   // process body function
   printf("proc %d starts from body()\n", running->pid);
   while(1){
     printf("***************************************\n");
-    printf("proc %d running: parent=%d", running->pid,running->ppid);
-    printBody();
+    printf("proc %d running: parent=%d\n", running->pid,running->ppid);
     printList("readyQueue", readyQueue);
-    printSleep("sleepList ", sleepList);
-    
+    printSleepList(sleepList);
     menu();
     printf("enter a command : ");
-    fgets(cmd, 64, stdin);
-    cmd[strlen(cmd)-1] = 0;
-
+    gets(cmd);
+    
     if (strcmp(cmd, "ps")==0)
       do_ps();
     if (strcmp(cmd, "fork")==0)
@@ -114,8 +128,6 @@ int body()   // process body function
       do_switch();
     if (strcmp(cmd, "exit")==0)
       do_exit();
-    if (strcmp(cmd, "jesus")==0)
-      do_jesus();
    if (strcmp(cmd, "sleep")==0)
       do_sleep();
    if (strcmp(cmd, "wakeup")==0)
@@ -125,27 +137,26 @@ int body()   // process body function
 
 int kfork()
 {
-  int  i;
+  int i;
   PROC *p = dequeue(&freeList);
-  if (!p){
-     printf("no more proc\n");
-     return(-1);
+  if (p==0){
+    kprintf("kfork failed\n");
+    return -1;
   }
-  /* initialize the new proc and its stack */
-  p->status = READY;
-  p->priority = 1;       // ALL PROCs priority=1, except P0
   p->ppid = running->pid;
+  p->parent = running;
+  p->status = READY;
+  p->priority = 1;
   
-  /************ new task initial stack contents ************
-   kstack contains: |retPC|eax|ebx|ecx|edx|ebp|esi|edi|eflag|
-                      -1   -2  -3  -4  -5  -6  -7  -8   -9
-  **********************************************************/
-  for (i=1; i<10; i++)               // zero out kstack cells
-      p->kstack[SSIZE - i] = 0;
-  p->kstack[SSIZE-1] = (int)body;    // retPC -> body()
-  p->ksp = &(p->kstack[SSIZE - 9]);  // PROC.ksp -> saved eflag 
-  enqueue(&readyQueue, p);           // enter p into readyQueue
-  addChild(p);
+  // set kstack to resume to body
+  // stack = r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r14
+  //         1  2  3  4  5  6  7  8  9  10 11  12  13  14
+  for (i=1; i<15; i++)
+      p->kstack[SSIZE-i] = 0;
+  p->kstack[SSIZE-1] = (int)body;  // in dec reg=address ORDER !!!
+  p->ksp = &(p->kstack[SSIZE-14]);
+ 
+  enqueue(&readyQueue, p);
   return p->pid;
 }
 
@@ -173,31 +184,50 @@ int do_exit()
 
 int do_sleep()
 {
+  
   int event;
   printf("enter an event value to sleep on : ");
-  scanf("%d", &event); getchar();
-  sleep(event);
+  event = geti();
+  ksleep(event);
 }
 
 int do_wakeup()
 {
   int event;
   printf("enter an event value to wakeup with : ");
-  scanf("%d", &event); getchar(); 
-  wakeup(event);
+  event = geti();
+  kwakeup(event);
 }
 
-
-/*************** main() function ***************/
 int main()
-{
-   printf("Welcome to the MT Multitasking System\n");
-   init();    // initialize system; create and run P0
+{ 
+   int i; 
+   char line[128]; 
+   u8 kbdstatus, key, scode;
+   KBD *kp = &kbd;
+   color = WHITE;
+   row = col = 0; 
+
+   fbuf_init();
+   kprintf("Welcome to Wanix in ARM\n");
+   kbd_init();
+   
+   /* enable SIC interrupts */
+   VIC_INTENABLE |= (1<<31); // SIC to VIC's IRQ31
+   /* enable KBD IRQ */
+   SIC_INTENABLE = (1<<3); // KBD int=bit3 on SIC
+   SIC_ENSET = (1<<3);  // KBD int=3 on SIC
+   *(kp->base+KCNTL) = 0x12;
+
+   init();
+
+   printQ(readyQueue);
    kfork();   // kfork P1 into readyQueue  
+
+   unlock();
    while(1){
-     printf("P0: switch process\n");
-     while (readyQueue == 0);
-         tswitch();
+     if (readyQueue)
+        tswitch();
    }
 }
 
@@ -211,3 +241,5 @@ int scheduler()
   running = dequeue(&readyQueue);
   printf("next running = %d\n", running->pid);  
 }
+
+

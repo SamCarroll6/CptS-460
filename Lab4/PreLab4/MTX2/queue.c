@@ -39,3 +39,42 @@ int printSleep(char *name, PROC *p)
   }
   printf("NULL\n");
 }
+
+int addChild(PROC *kid)
+{
+  PROC *hold = running->child;
+  if(hold)
+  {
+    while (hold->sibling)
+    {
+      hold = hold->sibling;
+    }
+    hold->sibling = kid;
+    kid->parent = running;
+    return 1;
+  }
+  running->child = kid;
+  kid->parent = running;
+  return 1;
+}
+
+int printBody()
+{
+  char *status[ ] = {"FREE", "READY", "SLEEP", "ZOMBIE"};
+  printf("  ChildList = ");
+  if(running)
+  {
+    PROC *p = running->child;
+    // printf("[%d  %s]->\n", p->pid, status[p->status]);
+    // p = p->sibling;
+    while (p)
+    {
+      printf("[%d  %s]->", p->pid, status[p->status]);
+      p = p->sibling;
+    }
+    printf("NULL\n");
+    return 1;
+  }
+  putchar('\n');
+  return -1;
+}
