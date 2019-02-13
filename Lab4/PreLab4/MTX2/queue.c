@@ -40,9 +40,14 @@ int printSleep(char *name, PROC *p)
   printf("NULL\n");
 }
 
-int addChild(PROC *kid)
+int addChild(PROC *kid, int id)
 {
-  PROC *hold = running->child;
+  if(kid == NULL || id < 0 || id > 8)
+  {
+    return -1;
+  }
+  PROC *currun = &proc[id];
+  PROC *hold = currun->child;
   if(hold)
   {
     while (hold->sibling)
@@ -50,12 +55,44 @@ int addChild(PROC *kid)
       hold = hold->sibling;
     }
     hold->sibling = kid;
-    kid->parent = running;
+    kid->parent = currun;
     return 1;
   }
-  running->child = kid;
-  kid->parent = running;
+  currun->child = kid;
+  kid->parent = currun;
   return 1;
+}
+
+removeChild(int cid, int pid)
+{
+  PROC *currun = &proc[pid]; 
+  PROC *hold = currun->child;
+  PROC *prev = hold;
+  if(hold)
+  {
+    if(currun->child->pid == cid)
+    {
+      hold = currun->child;
+      currun->child = hold->sibling;
+      hold->sibling = NULL;
+      hold->parent = NULL;
+      return 1;
+    }
+    while (hold->sibling)
+    {
+      if(hold->pid == cid)
+      {
+        prev->sibling = hold->sibling;
+        hold->sibling = NULL;
+        hold->parent = NULL;
+        return 1;
+      }
+      prev = hold;
+      hold = hold->sibling;
+    }
+    return -1;
+  }
+
 }
 
 int printBody()

@@ -50,9 +50,9 @@ int init()
 
 int menu()
 {
-  printf("****************************************\n");
-  printf(" ps fork switch exit jesus sleep wakeup \n");
-  printf("****************************************\n");
+  printf("*********************************************\n");
+  printf(" ps fork switch exit jesus sleep wakeup wait \n");
+  printf("*********************************************\n");
 }
 
 char *status[ ] = {"FREE", "READY", "SLEEP", "ZOMBIE"};
@@ -120,6 +120,8 @@ int body()   // process body function
       do_sleep();
    if (strcmp(cmd, "wakeup")==0)
       do_wakeup();
+   if (strcmp(cmd, "wait")==0)
+      do_wait();
   }
 }
 
@@ -145,7 +147,7 @@ int kfork()
   p->kstack[SSIZE-1] = (int)body;    // retPC -> body()
   p->ksp = &(p->kstack[SSIZE - 9]);  // PROC.ksp -> saved eflag 
   enqueue(&readyQueue, p);           // enter p into readyQueue
-  addChild(p);
+  addChild(p, running->pid);
   return p->pid;
 }
 
@@ -166,8 +168,30 @@ int do_switch()
    tswitch();
 }
 
+int do_wait()
+{
+  int status, pid;
+  printf("proc %d waits for a ZOMBIE child\n", running->pid);
+  pid = wait(&status);
+  if(pid == -1)
+  {
+    printf("wait error: no child\n");
+  }
+  else
+  {
+    printf("proc %d buried a ZOMBIE child = %d status = %d\n", pid, status);
+
+  }
+  
+}
+
 int do_exit()
 {
+  if(running->pid == 1)
+  {
+    printf("p1 can never die\n");
+    return -1;
+  }
   kexit(running->pid);  // exit with own PID value 
 }
 
