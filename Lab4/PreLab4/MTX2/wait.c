@@ -1,8 +1,8 @@
 int tswitch();
 
-int wait(int *status)
+int wait(PROC *cur, int *status)
 {
-  PROC *p = running->child;
+  PROC *p = cur->child;
   int zpid;
   if(p == NULL)
   {
@@ -16,14 +16,13 @@ int wait(int *status)
       *status = p->exitCode;
       p->ppid = 0;
       p->status = FREE;
-      removeChild(p->pid, running->pid);
+      removeChild(p->pid, cur->pid);
       enqueue(&freeList, p);
       return zpid;
     }
     p = p->sibling;
   }
-  sleep(running);
-  return wait(status);
+  sleep(cur);
 }
 
 int sleep(int event)
@@ -75,7 +74,9 @@ int kexit(int exitValue)
   running->status = ZOMBIE;
   if(running->parent->status == SLEEP)
   {
+    int stat;
     wakeup(running->parent);
+    wait(running->parent, &stat);
   }
   if(check == 1)
   {

@@ -172,7 +172,7 @@ int do_wait()
 {
   int status, pid;
   printf("proc %d waits for a ZOMBIE child\n", running->pid);
-  pid = wait(&status);
+  pid = wait(running, &status);
   if(pid == -1)
   {
     printf("wait error: no child\n");
