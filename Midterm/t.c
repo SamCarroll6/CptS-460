@@ -114,6 +114,7 @@ int body()   // process body function
   while(1){
     printf("***************************************\n");
     printf("proc %d running: parent=%d\n", running->pid,running->ppid);
+    printBody();
     printList("readyQueue", readyQueue);
     printSleepList(sleepList);
     menu();
@@ -128,10 +129,12 @@ int body()   // process body function
       do_switch();
     if (strcmp(cmd, "exit")==0)
       do_exit();
-   if (strcmp(cmd, "sleep")==0)
+    if (strcmp(cmd, "sleep")==0)
       do_sleep();
-   if (strcmp(cmd, "wakeup")==0)
+    if (strcmp(cmd, "wakeup")==0)
       do_wakeup();
+    if(strcmp(cmd, "wait") == 0)
+      do_wait();
   }
 }
 
@@ -161,6 +164,7 @@ int kfork()
   p->ksp = &(p->kstack[SSIZE-14]); // saved ksp -> -14 entry in kstack
  
   enqueue(&readyQueue, p);
+  addChild(p, running->pid);
   return p->pid;
 }
 
@@ -183,6 +187,11 @@ int do_switch()
 
 int do_exit()
 {
+  if(running->pid == 1)
+  {
+    printf("p1 can never die\n");
+    return -1;
+  }
   kexit(running->pid);  // exit with own PID value 
 }
 
@@ -202,6 +211,23 @@ int do_wakeup()
   event = geti();
   kwakeup(event);
 }
+
+int do_wait()
+{
+  int status, pid;
+  printf("proc %d waits for a ZOMBIE child\n", running->pid);
+  pid = wait(running, &status);
+  if(pid == -1)
+  {
+    printf("wait error: no child\n");
+  }
+  else
+  {
+    printf("proc %d buried a ZOMBIE child = %d status = %d\n", pid, status);
+  }
+  
+}
+
 
 int main()
 { 
