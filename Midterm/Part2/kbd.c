@@ -84,6 +84,7 @@ int kbd_init()
   printf("keyset=%d\n", keyset);
 }
 
+
 // kbd_handler1() for scan code set 1
 void kbd_handler1()
 {
@@ -107,7 +108,7 @@ void kbd_handler1()
 
   kp->data++;
   kp->room--;
-  
+  wakeup(&kp->data);
 }
 
 // kbd_handelr2() for scan code set 2
@@ -120,11 +121,16 @@ void kbd_handler2()
 
   //printf("scan code = %x ", scode);
   
-    if (scode == 0xF0){       // key release 
+  if (scode == 0xF0){       // key release 
      //release = 1;           // set flag
      return;
   }
   
+  if (kp->data == 128) // if input buffer FULL
+  {
+    return;           // ignore current key
+  }
+
   if (held[scode] == 1 && scode){    // next scan code following key release
      held[scode] = 0;
      //release = 0;           // clear flag 
@@ -163,7 +169,7 @@ void kbd_handler2()
 
   kp->data++;
   kp->room--;
-  
+  wakeup(&kp->data);
   // YOUR kbd handler for SET 2 scan code 
 }
 
@@ -180,13 +186,23 @@ int kgetc()
   char c;
   KBD *kp = &kbd;
   
-  while(kp->data == 0);   // BUSY wait for data
-  
-  lock();
-   c = kp->buf[kp->tail++];
+  while(1)   // BUSY wait for data
+  {
+  lock();   // disable IRQ interrupts
+   if(kp->data == 0)  // Check data with IRQ disabled
+   {
+     unlock();  //enable IRQ interrupts
+     sleep(&kp->data);  // sleep for data
+   }
+   else{
+    break;
+   }
+  }
+   c = kp->buf[kp->tail++]; // get a c and update tail index
    kp->tail %= 128;
-   kp->data--; kp->room++;
-  unlock();
+   kp->data--; // Update with interrups off
+   kp->room++;
+  unlock(); // enable IRQ interrupts
   
   return c;
 }

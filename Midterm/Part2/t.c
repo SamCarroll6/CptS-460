@@ -264,12 +264,12 @@ int main()
 /*********** scheduler *************/
 int scheduler()
 { 
-  printf("proc %d in scheduler()\n", running->pid);
+  //printf("proc %d in scheduler()\n", running->pid);
   if (running->status == READY)
      enqueue(&readyQueue, running);
-  printList("readyQueue", readyQueue);
+  //printList("readyQueue", readyQueue);
   running = dequeue(&readyQueue);
-  printf("next running = %d\n", running->pid);  
+  //printf("next running = %d\n", running->pid);  
 }
 
 

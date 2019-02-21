@@ -50,15 +50,18 @@ int kwakeup(int event)
   
   printList("sleepList", sleepList);
 
-  while (p = dequeue(&sleepList)){
-     if (p->event == event){
-	printf("wakeup %d\n", p->pid);
-	p->status = READY;
-	enqueue(&readyQueue, p);
-     }
-     else{
-	enqueue(&temp, p);
-     }
+  while (p = dequeue(&sleepList))
+  {
+    if (p->event == event)
+    {
+      printf("wakeup %d\n", p->pid);
+      p->status = READY;
+      enqueue(&readyQueue, p);
+    }
+    else
+    {
+      enqueue(&temp, p);
+    }
   }
   sleepList = temp;
   printList("sleepList", sleepList);
@@ -101,4 +104,35 @@ int kexit(int exitValue)
 }
 
 
+int sleep(int event)
+{
+  int sr = int_off();
+
+  running->event = event;
+  running->status = SLEEP;
+  enqueue(&sleepList, running);
+  tswitch();
+  int_on(sr);
+}
+
+int wakeup(int event)
+{
+  PROC *temp, *p;
+  temp = 0;
+  int sr = int_off();
   
+  while (p = dequeue(&sleepList))
+  {
+    if (p->event == event)
+    {
+      p->status = READY;
+      enqueue(&readyQueue, p);
+    }
+    else
+    {
+      enqueue(&temp, p);
+    }
+  }
+  sleepList = temp;
+  int_on(sr);
+}  
