@@ -7,6 +7,8 @@ typedef struct pipe{
   int data, room;
 }PIPE;
 
+int broke = 0;
+
 PIPE pipe;
 
 int show_pipe()
@@ -67,6 +69,11 @@ int write_pipe(PIPE *p, char *buf, int n)
   int ret = 0; 
   show_pipe();
   while (n){
+    if(broke)
+    {
+        kprintf("Broken pipe, exiting write process\n");
+        kexit(running);
+    }
     kprintf("writer %d writing pipe\n", running->pid);
     while (p->room){
        p->buf[p->head++] = *buf; 
@@ -95,10 +102,15 @@ int pipe_reader()
  
   while(1){
     kprintf("input nbytes to read : " );
-    nbytes = geti(); kgetc();
+    nbytes = geti();
+    if(nbytes == 0)
+    {
+      broke = 1;
+      kexit(running);
+    }
     n = read_pipe(p, line, nbytes);
     line[n] = 0;
-    kprintf("Read n=%d bytes : line=%s\n", n, line);
+    kprintf("Read n=%d bytes from pipe: line=[ %s ]\n", n, line);
   }
 }
 
@@ -109,15 +121,18 @@ int pipe_writer()
   int nbytes, n;
   PIPE *p = &pipe;
   kprintf("proc %d as pipe writer\n", running->pid);
-
+  kgets(line);
   while(1){
-    kprintf("input a string to write : " );
+    kprintf("Enter a line to write or a NULL line to exit: " );
 
     kgets(line);
     line[strlen(line)] = 0;
 
     if (strcmp(line, "")==0)
-       continue;
+    {
+      kexit(running);
+      continue;
+    }
 
     nbytes = strlen(line);
     kprintf("nbytes=%d buf=%s\n", nbytes, line);

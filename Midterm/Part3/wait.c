@@ -48,7 +48,7 @@ int kwakeup(int event)
   temp = 0;
   int sr = int_off();
   
-  printList("sleepList", sleepList);
+  //printList("sleepList", sleepList);
 
   while (p = dequeue(&sleepList))
   {
@@ -64,7 +64,7 @@ int kwakeup(int event)
     }
   }
   sleepList = temp;
-  printList("sleepList", sleepList);
+  //printList("sleepList", sleepList);
   int_on(sr);
 }
 
