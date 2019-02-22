@@ -1,7 +1,6 @@
 #define NPIPE 10
 #define PSIZE  8
 
-int kprintf(char *, ...);
 typedef struct pipe{
   char buf[8];
   int head, tail;
@@ -14,12 +13,12 @@ int show_pipe()
 {
   PIPE *p = &pipe;
   int i;
-  kprintf("----------------------------------------\n");
-  kprintf("room=%d data=%d buf=", p->room, p->data);
+  printf("----------------------------------------\n");
+  printf("room=%d data=%d buf=", p->room, p->data);
   for (i=0; i<p->data; i++)
-    kputc(p->buf[p->tail+i]);
-  kprintf("\n");
-  kprintf("----------------------------------------\n");
+    putchar(p->buf[p->tail+i]);
+  printf("\n");
+  printf("----------------------------------------\n");
 }
 int kpipe()
 {
@@ -39,7 +38,7 @@ int read_pipe(PIPE *p, char *buf, int n)
   show_pipe();
 
   while(n){
-    kprintf("reader %d reading pipe\n", running->pid);
+    printf("reader %d reading pipe\n", running->pid);
     ret = 0;
     while(p->data){
         *buf = p->buf[p->tail++];
@@ -55,7 +54,7 @@ int read_pipe(PIPE *p, char *buf, int n)
        return ret;
     }
     // pipe has no data
-    kprintf("reader %d sleep for data\n", running->pid);
+    printf("reader %d sleep for data\n", running->pid);
     kwakeup(&p->room);
     ksleep(&p->data);
     continue;
@@ -68,7 +67,7 @@ int write_pipe(PIPE *p, char *buf, int n)
   int ret = 0; 
   show_pipe();
   while (n){
-    kprintf("writer %d writing pipe\n", running->pid);
+    printf("writer %d writing pipe\n", running->pid);
     while (p->room){
        p->buf[p->head++] = *buf; 
        p->head  %= PSIZE;
@@ -81,41 +80,25 @@ int write_pipe(PIPE *p, char *buf, int n)
        }
     }
     show_pipe();
-    kprintf("writer %d sleep for room\n", running->pid);
+    printf("writer %d sleep for room\n", running->pid);
     kwakeup(&p->data);
     ksleep(&p->room);
   }
 }
  
-// function to return an int for pip_reader since scanf doesn't work
-int getint()
-{
-  char num[50];
-  int i;
-  int ret = 0;
-  kgets(num);
-  for(i = 0; i < 50; i++)
-  {
-    if(num[i] == '\0')
-      break;
-    ret = 10 * ret + (num[i] + '0');
-  }
-  return ret;
-}
-
 int pipe_reader()
 {
   char line[128];
   int nbytes, n;
   PIPE *p = &pipe;
-  kprintf("proc %d as pipe reader\n", running->pid);
+  printf("proc %d as pipe reader\n", running->pid);
  
   while(1){
-    kprintf("input nbytes to read : " );
-    nbytes = getint(); kgetc();
+    printf("input nbytes to read : " );
+    scanf("%d", &nbytes); getchar();
     n = read_pipe(p, line, nbytes);
     line[n] = 0;
-    kprintf("Read n=%d bytes : line=%s\n", n, line);
+    printf("Read n=%d bytes : line=%s\n", n, line);
   }
 }
 
@@ -125,21 +108,21 @@ int pipe_writer()
   char line[128];
   int nbytes, n;
   PIPE *p = &pipe;
-  kprintf("proc %d as pipe writer\n", running->pid);
+  printf("proc %d as pipe writer\n", running->pid);
 
   while(1){
-    kprintf("input a string to write : " );
+    printf("input a string to write : " );
 
-    kgets(line);
+    fgets(line, 128, stdin);
     line[strlen(line)-1] = 0;
 
     if (strcmp(line, "")==0)
        continue;
 
     nbytes = strlen(line);
-    kprintf("nbytes=%d buf=%s\n", nbytes, line);
+    printf("nbytes=%d buf=%s\n", nbytes, line);
     n = write_pipe(p, line, nbytes);
-    kprintf("wrote n=%d bytes\n", n);
+    printf("wrote n=%d bytes\n", n);
   }
 }
 

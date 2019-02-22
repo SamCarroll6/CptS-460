@@ -4,12 +4,12 @@ typedef struct semaphore{
 }SEMAPHORE;
 
 int show_buffer();
-int kprintf(char *, ...);
+
 int P(struct semaphore *s)
 {
   s->value--;
   if (s->value < 0){
-    kprintf("proc %d BLOCK\n", running->pid);
+    printf("proc %d BLOCK\n", running->pid);
     show_buffer();
     running->status = BLOCK;
     enqueue(&s->queue, running);
@@ -25,7 +25,7 @@ int V(struct semaphore *s)
     p = dequeue(&s->queue);
     p->status = READY;
     enqueue(&readyQueue, p);
-    kprintf("V-up %d\n", p->pid);
+    printf("V-up %d\n", p->pid);
     show_buffer();
   }
 }
@@ -45,12 +45,12 @@ int show_buffer()
 {
   BUFFER *p = &buffer;
   int i;
-  kprintf("------------ BF -----------------\n");
-  kprintf("room=%d data=%d buf=", p->room.value, p->data.value);
+  printf("------------ BF -----------------\n");
+  printf("room=%d data=%d buf=", p->room.value, p->data.value);
   for (i=0; i<p->data.value; i++)
-    kputc(p->buf[p->tail+i]);
-  kprintf("\n");
-  kprintf("----------------------------------\n");
+    putchar(p->buf[p->tail+i]);
+  printf("\n");
+  printf("----------------------------------\n");
 }
 
 int buffer_init()
@@ -92,21 +92,21 @@ int consumer()
   char line[128];
   int nbytes, n, i;
 
-  kprintf("proc %d as consumer\n", running->pid);
+  printf("proc %d as consumer\n", running->pid);
  
   while(1){
-    kprintf("input nbytes to read : " );
-    kgets(line);
+    printf("input nbytes to read : " );
+    fgets(line, 128, stdin);
     line[strlen(line)-1] = 0;
-    nbytes = geti();
+    sscanf(line, "%d", &nbytes);
     show_buffer();
     for (i=0; i<nbytes; i++){
        line[i] = consume();
-       kprintf("%c", line[i]);
+       printf("%c", line[i]);
     }
-    kprintf("\n");
+    printf("\n");
     show_buffer();
-    kprintf("consumer %d got n=%d bytes : line=%s\n", running->pid, n, line);
+    printf("consumer %d got n=%d bytes : line=%s\n", running->pid, n, line);
   }
 }
 
@@ -115,22 +115,22 @@ int producer()
   char line[128];
   int nbytes, n, i;
 
-  kprintf("proc %d as producer\n", running->pid);
+  printf("proc %d as producer\n", running->pid);
 
   while(1){
-    kprintf("input a string to produce : " );
+    printf("input a string to produce : " );
     
-    kgets(line);
+    fgets(line, 128, stdin);
     line[strlen(line)-1] = 0;
 
     nbytes = strlen(line);
-    kprintf("nbytes=%d line=%s\n", nbytes, line);
+    printf("nbytes=%d line=%s\n", nbytes, line);
     show_buffer();
     for (i=0; i<nbytes; i++){
       produce(line[i]);
     }
     show_buffer();
-    kprintf("producer %d put n=%d bytes\n", running->pid, nbytes);
+    printf("producer %d put n=%d bytes\n", running->pid, nbytes);
   }
 }
 
