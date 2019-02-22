@@ -75,13 +75,13 @@ int kbd_init()
   release = 0;
   control = 0;
 
-  printf("Detect KBD scan code: press the ENTER key : ");
+  kprintf("Detect KBD scan code: press the ENTER key : ");
   while( (*(kp->base + KSTAT) & 0x10) == 0);
   scode = *(kp->base + KDATA);
-  printf("scode=%x ", scode);
+  kprintf("scode=%x ", scode);
   if (scode==0x5A)
     keyset=2;
-  printf("keyset=%d\n", keyset);
+  kprintf("keyset=%d\n", keyset);
 }
 
 
@@ -93,7 +93,7 @@ void kbd_handler1()
 
   scode = *(kp->base + KDATA);
 
-  //printf("scan code = %x ", scode);
+  //kprintf("scan code = %x ", scode);
   
   if (scode & 0x80)
     return;
@@ -108,7 +108,7 @@ void kbd_handler1()
 
   kp->data++;
   kp->room--;
-  wakeup(&kp->data);
+  kwakeup(&kp->data);
 }
 
 // kbd_handelr2() for scan code set 2
@@ -119,7 +119,7 @@ void kbd_handler2()
 
   scode = *(kp->base + KDATA);
 
-  //printf("scan code = %x ", scode);
+  //kprintf("scan code = %x ", scode);
   
   if (scode == 0xF0){       // key release 
      //release = 1;           // set flag
@@ -144,7 +144,7 @@ void kbd_handler2()
 
   if(held[0x14] == 1 && ltab[scode] == 'c') // if control held and 'c' pressed
   {
-    printf("Control-c Key\n");
+    kprintf("Control-c Key\n");
     return;
   }
   else if(held[0x14] == 1 && ltab[scode] == 'd') // if control held and 'd' pressed
@@ -169,7 +169,8 @@ void kbd_handler2()
 
   kp->data++;
   kp->room--;
-  wakeup(&kp->data);
+  //wakeup(&kp->data);
+  V(&kp->data);
   // YOUR kbd handler for SET 2 scan code 
 }
 
@@ -186,24 +187,11 @@ int kgetc()
   char c;
   KBD *kp = &kbd;
   
-  while(1)   // BUSY wait for data
-  {
-  lock();   // disable IRQ interrupts
-   if(kp->data == 0)  // Check data with IRQ disabled
-   {
-     unlock();  //enable IRQ interrupts
-     sleep(&kp->data);  // sleep for data
-   }
-   else{
-    break;
-   }
-  }
-   c = kp->buf[kp->tail++]; // get a c and update tail index
-   kp->tail %= 128;
-   kp->data--; // Update with interrups off
-   kp->room++;
-  unlock(); // enable IRQ interrupts
-  
+  P(&kp->data);
+  lock();
+    c = kp->buf[kp->tail++];
+    kp->tail %= 128;
+  unlock();
   return c;
 }
 

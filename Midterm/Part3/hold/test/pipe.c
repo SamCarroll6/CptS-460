@@ -85,7 +85,7 @@ int write_pipe(PIPE *p, char *buf, int n)
     ksleep(&p->room);
   }
 }
- 
+
 int pipe_reader()
 {
   char line[128];
@@ -95,7 +95,7 @@ int pipe_reader()
  
   while(1){
     kprintf("input nbytes to read : " );
-    nbytes = geti(); kgetc();
+    nbytes = getint(); kgetc();
     n = read_pipe(p, line, nbytes);
     line[n] = 0;
     kprintf("Read n=%d bytes : line=%s\n", n, line);

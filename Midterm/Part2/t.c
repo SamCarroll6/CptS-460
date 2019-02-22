@@ -162,7 +162,7 @@ int kfork()
 
   p->kstack[SSIZE-1] = (int)body;  // saved lr -> body()
   p->ksp = &(p->kstack[SSIZE-14]); // saved ksp -> -14 entry in kstack
- 
+  
   enqueue(&readyQueue, p);
   addChild(p, running->pid);
   return p->pid;

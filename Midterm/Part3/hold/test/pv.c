@@ -98,7 +98,7 @@ int consumer()
     kprintf("input nbytes to read : " );
     kgets(line);
     line[strlen(line)-1] = 0;
-    nbytes = geti();
+    nbytes = getint();
     show_buffer();
     for (i=0; i<nbytes; i++){
        line[i] = consume();

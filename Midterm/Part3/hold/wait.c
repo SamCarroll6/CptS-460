@@ -24,39 +24,7 @@ int wait(PROC *cur, int *status)
   }
   ksleep(cur);
 }
-// {
-//   PROC *p = cur->child;
-//   int zpid, i;
-//   for(i=0; i < NPROC; i++)
-//   {
-//     if(proc[i].ppid == running->pid && proc[i].status != FREE)
-//       break;
-//   }
-//   p = &proc[i];
-//   if(p == NULL)
-//   {
-//     return -1;
-//   }
-//   while (1)
-//   {
-//     for (i = 0; i < NPROC; i++)
-//     {
-//       p = &proc[i];
-//       if (p->status == ZOMBIE)
-//       {
-//         zpid = p->pid;
-//         *status = p->exitCode;
-//         p->ppid = 0;
-//         p->status = FREE;
-//         removeChild(p->pid, cur->pid);
-//         enqueue(&freeList, p);
-//         return zpid;
-//       }
-//     }
-//     ksleep(cur);
-//   }
-//  
-//}
+
 
 int ksleep(int event)
 {

@@ -1,5 +1,5 @@
 /*********** t.c file of A Multitasking System *********/
-#include <stdio.h>
+// #include <stdio.h>
 #include "type.h"
 
 /******** function prototypes *****************/
@@ -13,14 +13,51 @@ PROC *readyQueue;      // priority queue of READY procs
 PROC *running;         // current running proc pointer
 PROC *sleepList;
 
+#include "string.c"
+#include "kbd.c"
+#include "vid.c"
+#include "exceptions.c"
+
 #include "queue.c"     // include queue.c file
 #include "wait.c"      // include wait.c file
 #include "pipe.c"
+#include "pv.c"
+
+
+int procsize = sizeof(PROC);
+
+int scheduler();
+
+int kprintf(char *fmt, ...);
+
 
 /*******************************************************
   kfork() creates a child process; returns child pid.
   When scheduled to run, child PROC resumes to body();
 ********************************************************/
+void copy_vectors(void) {
+    extern u32 vectors_start;
+    extern u32 vectors_end;
+    u32 *vectors_src = &vectors_start;
+    u32 *vectors_dst = (u32 *)0;
+    while(vectors_src < &vectors_end)
+       *vectors_dst++ = *vectors_src++;
+}
+
+void IRQ_handler()
+{
+    int vicstatus, sicstatus;
+    int ustatus, kstatus;
+
+    // read VIC SIV status registers to find out which interrupt
+    vicstatus = VIC_STATUS;
+    sicstatus = SIC_STATUS;  
+    if (vicstatus & 0x80000000){ // SIC interrupts=bit_31=>KBD at bit 3 
+       if (sicstatus & 0x08){
+          kbd_handler();
+       }
+    }
+}
 
 // initialize the MT system; create P0 as initial running process
 int init() 
@@ -49,28 +86,28 @@ int init()
   p->sibling = 0;
   
   printList("freeList", freeList);
-  printf("init complete: P0 running\n"); 
+  kprintf("init complete: P0 running\n"); 
 }
 
 int INIT()
 {
   int pid, status;
   PIPE *p = &pipe;
-  printf("P1 running: create pipe and writer reader processes\n");
+  kprintf("P1 running: create pipe and writer reader processes\n");
   kpipe();
   kfork(pipe_writer);
   kfork(pipe_reader);
-  printf("P1 waits for ZOMBIE child\n");
+  kprintf("P1 waits for ZOMBIE child\n");
   while(1){
-    printf("%d\n", pid);
+    kprintf("%d\n", pid);
     pid = wait(running, &status);
-    printf("%d\n", pid);
+    kprintf("%d\n", pid);
     if (pid < 0){
 
-      printf("no more child, P1 loops\n");
+      kprintf("no more child, P1 loops\n");
       while(1);
     }
-    printf("P1 buried a ZOMBIE child %d\n", pid);
+    kprintf("P1 buried a ZOMBIE child %d\n", pid);
   }
 }
   
@@ -80,7 +117,7 @@ int kfork(int func)
   PIPE *pp = &pipe;
   PROC *p = dequeue(&freeList);
   if (!p){
-     printf("no more proc\n");
+     kprintf("no more proc\n");
      return(-1);
   }
   /* initialize the new proc and its stack */
@@ -111,14 +148,29 @@ int kfork(int func)
 int main()
 {
   int pid, status;
-   printf("Welcome to the MT Multitasking System\n");
+  int i; 
+   char line[128]; 
+   u8 kbdstatus, key, scode;
+   KBD *kp = &kbd;
+   color = WHITE;
+   row = col = 0; 
+   kprintf("Welcome to the MT Multitasking System\n");
+   fbuf_init();
+   kbd_init();
+   /* enable SIC interrupts */
+   VIC_INTENABLE |= (1<<31); // SIC to VIC's IRQ31
+   /* enable KBD IRQ */
+   SIC_INTENABLE = (1<<3); // KBD int=bit3 on SIC
+   SIC_ENSET = (1<<3);  // KBD int=3 on SIC
+   *(kp->base+KCNTL) = 0x12;
+
    init();    // initialize system; create and run P0
    INIT();
    //kfork(INIT);
 
    printList("readyQueue", readyQueue);
    while(1){
-     printf("P0 switch process\n");
+     kprintf("P0 switch process\n");
      while(!readyQueue);
      tswitch();
    }
@@ -127,10 +179,10 @@ int main()
 /*********** scheduler *************/
 int scheduler()
 { 
-  //  printf("proc %d in scheduler()\n", running->pid);
+  //  kprintf("proc %d in scheduler()\n", running->pid);
   if (running->status == READY)
      enqueue(&readyQueue, running);
   //printList("readyQueue", readyQueue);
   running = dequeue(&readyQueue);
-  //printf("next running = %d\n", running->pid);  
+  //kprintf("next running = %d\n", running->pid);  
 }

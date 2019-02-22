@@ -15,10 +15,10 @@ int procsize = sizeof(PROC);
 #include "kbd.c"
 #include "vid.c"
 #include "exceptions.c"
+
 #include "queue.c"
 #include "wait.c"      // include wait.c file
-#include "pipe.c"
-#include "pv.c"
+#include "timer.c"
 
 /*******************************************************
   kfork() creates a child process; returns child pid.
@@ -82,38 +82,14 @@ int init()
   printf("init complete: P0 running\n"); 
 }
 
-int INIT()
-{
-  int pid, status;
-  PIPE *p = &pipe;
-  kprintf("P1 running: create pipe and writer reader processes\n");
-  kpipe();
-  kfork(pipe_writer);
-  kfork(pipe_reader);
-  kprintf("P1 waits for ZOMBIE child\n");
-  while(1){
-    kprintf("%d\n", pid);
-    pid = wait(running, &status);
-    kprintf("%d\n", pid);
-    if (pid < 0){
-
-      kprintf("no more child, P1 loops\n");
-      while(1);
-    }
-    kprintf("P1 buried a ZOMBIE child %d\n", pid);
-  }
-}
-  
-
-
 int menu()
 {
-  printf("***************************************\n");
-  printf(" ps fork switch exit sleep wakeup wait \n");
-  printf("***************************************\n");
+  printf("*****************************************\n");
+  printf(" ps fork switch exit sleep wakeup wait t \n");
+  printf("*****************************************\n");
 }
 
-char *status[ ] = {"FREE", "READY", "SLEEP", "ZOMBIE", "BLOCK"};
+char *status[ ] = {"FREE", "READY", "SLEEP", "ZOMBIE"};
 
 int do_ps()
 {
@@ -128,6 +104,18 @@ int do_ps()
       printf("RUNNING\n");
     else
       printf("%s\n", status[p->status]);
+  }
+}
+
+int do_timer()
+{
+  int runtime;
+  if(running->pid > 0 && running->pid < 5)
+  {
+    kprintf("Enter a timer value: ");
+    runtime = geti();
+    timer_start(running->pid - 1);
+    
   }
 }
     
@@ -160,10 +148,12 @@ int body()   // process body function
       do_wakeup();
     if(strcmp(cmd, "wait") == 0)
       do_wait();
+    if(strcmp(cmd, "t") == 0)
+      do_timer();
   }
 }
 
-int kfork(int func)
+int kfork()
 {
   int i;
   PROC *p = dequeue(&freeList);
@@ -185,7 +175,7 @@ int kfork(int func)
   for (i=1; i<15; i++)
     p->kstack[SSIZE-i] = 0;        // zero out kstack
 
-  p->kstack[SSIZE-1] = (int)func;  // saved lr -> body()
+  p->kstack[SSIZE-1] = (int)body;  // saved lr -> body()
   p->ksp = &(p->kstack[SSIZE-14]); // saved ksp -> -14 entry in kstack
   
   enqueue(&readyQueue, p);
@@ -195,7 +185,7 @@ int kfork(int func)
 
 int do_kfork()
 {
-   int child = kfork(body);
+   int child = kfork();
    if (child < 0)
       printf("kfork failed\n");
    else{
@@ -266,18 +256,21 @@ int main()
    fbuf_init();
    kprintf("Welcome to Wanix in ARM\n");
    kbd_init();
-   
+   /*Create timers*/
+   VIC_INTENABLE |= (1<<4);
+   VIC_INTENABLE |= (1<<5);
    /* enable SIC interrupts */
    VIC_INTENABLE |= (1<<31); // SIC to VIC's IRQ31
    /* enable KBD IRQ */
    SIC_INTENABLE = (1<<3); // KBD int=bit3 on SIC
    SIC_ENSET = (1<<3);  // KBD int=3 on SIC
    *(kp->base+KCNTL) = 0x12;
-
+   timer_init();
+   //timer_start(0);
    init();
 
    printQ(readyQueue);
-   kfork(INIT);   // kfork P1 into readyQueue  
+   kfork();   // kfork P1 into readyQueue  
 
    unlock();
    while(1){
