@@ -114,7 +114,7 @@ int pipe_writer()
     kprintf("input a string to write : " );
 
     kgets(line);
-    line[strlen(line)-1] = 0;
+    line[strlen(line)] = 0;
 
     if (strcmp(line, "")==0)
        continue;

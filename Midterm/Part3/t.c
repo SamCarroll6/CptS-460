@@ -92,9 +92,7 @@ int INIT()
   kfork(pipe_reader);
   kprintf("P1 waits for ZOMBIE child\n");
   while(1){
-    kprintf("%d\n", pid);
     pid = wait(running, &status);
-    kprintf("%d\n", pid);
     if (pid < 0){
 
       kprintf("no more child, P1 loops\n");
@@ -275,9 +273,9 @@ int main()
    *(kp->base+KCNTL) = 0x12;
 
    init();
+   kfork(INIT);   // kfork P1 into readyQueue  
 
    printQ(readyQueue);
-   kfork(INIT);   // kfork P1 into readyQueue  
 
    unlock();
    while(1){
