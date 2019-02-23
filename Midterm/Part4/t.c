@@ -140,7 +140,7 @@ int do_timer()
     kprintf("Enter a timer value: ");
     runtime = geti();
     timer_start(running->pid - 1);
-    
+    ksleep(running);
   }
 }
     
@@ -293,16 +293,18 @@ int main()
 
    *(kp->base+KCNTL) = 0x12;
    timer_init();
-   //timer_start(0);
+
    init();
-   for(i = 0; i < 4; i++)
-   {
-     tp[i] = &timer[i];
-     timer_start(i);
-   }
+  //  for(i = 0; i < 4; i++)
+  //  {
+  //    tp[i] = &timer[i];
+  //    timer_start(i);
+  //  }
    printQ(readyQueue);
    kfork();   // kfork P1 into readyQueue  
-
+   kfork();
+   kfork();
+   kfork();
    unlock();
    while(1){
      if (readyQueue)

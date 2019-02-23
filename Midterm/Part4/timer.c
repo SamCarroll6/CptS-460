@@ -12,6 +12,7 @@ typedef volatile struct timer{
     char clock[16];
 }TIMER;
 
+
 volatile TIMER timer[4]; // 4 timers, 2 per unit, at 0x00 and 0x20
 
 void timer_init()
