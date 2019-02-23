@@ -22,20 +22,20 @@ void timer_init()
     for(i = 0; i < 4; i++)
     {
         tp = &timer[i];
-        if(i==1)
+        if(i==0)
             tp->base = (u32 *)0x101E2000;
-        if(i==2)
+        if(i==1)
             tp->base = (u32 *)0x101E2020;
-        if(i==3)
+        if(i==2)
             tp->base = (u32 *)0x101E3000;
-        if(i==4)
+        if(i==3)
             tp->base = (u32 *)0x101E3020;
         *(tp->base+TLOAD) = 0x0; //reset
         *(tp->base+TVALUE) = 0xFFFFFFFF;
-        *(tp->base+TCNTL) = 0x0;
-        *(tp->base+TINTCLR) = 0x0;
-        *(tp->base+TRIS) = 0x100;
-        *(tp->base+TMIS) = 0x66;
+        *(tp->base+TRIS) = 0x0;
+        *(tp->base+TMIS) = 0x0;
+        *(tp->base+TLOAD) = 0x100;
+        *(tp->base+TCNTL) = 0x66;
         *(tp->base+TBGLOAD) = 0x1C00;
         tp->tick = tp->hh = tp->mm = tp->ss = 0;
         strcpy2((char *)tp->clock, "00:00:00");
@@ -83,14 +83,12 @@ void timer_handler(int n)
         }
         t->clock[7]='0' + (t->ss%10); t->clock[6] = '0' + (t->ss/10);
         t->clock[4] = '0' + (t->mm%10); t->clock[3] = '0' + (t->mm/10);
-        t->clock[1] = '0' + (t->hh%10); t->clock[3] = '0' + (t->hh/10);
+        t->clock[1] = '0' + (t->hh%10); t->clock[0] = '0' + (t->hh/10);
     }
     color = n;
     for(i = 0; i < 8; i++)
     {
-        kprintf("HELLO %s", t->clock[i]);
         kpchar(t->clock[i], n, 70+i);
     }
-    kprintf("\n");
     timer_clearinterrupt(n);
 }

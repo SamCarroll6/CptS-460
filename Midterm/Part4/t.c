@@ -7,6 +7,7 @@ PROC *readyQueue;      // priority queue of READY procs
 PROC *running;         // current running proc pointer
 
 PROC *sleepList;       // list of SLEEP procs
+
 int procsize = sizeof(PROC);
 
 #define printf kprintf
@@ -19,6 +20,8 @@ int procsize = sizeof(PROC);
 #include "queue.c"
 #include "wait.c"      // include wait.c file
 #include "timer.c"
+
+TIMER *tp[4];
 
 /*******************************************************
   kfork() creates a child process; returns child pid.
@@ -51,6 +54,28 @@ void IRQ_handler()
        if (sicstatus & 0x08){
           kbd_handler();
        }
+    }
+    if(vicstatus & (1<<4))
+    {
+      if(*(tp[0]->base+TVALUE) == 0)
+      {
+        timer_handler(0);
+      }
+      if(*(tp[1]->base+TVALUE) == 0)
+      {
+        timer_handler(1);
+      }
+    }
+    if(vicstatus & (1<<5))
+    {
+      if(*(tp[2]->base+TVALUE) == 0)
+      {
+        timer_handler(2);
+      }
+      if(*(tp[3]->base+TVALUE) == 0)
+      {
+        timer_handler(3);
+      }
     }
 }
 
@@ -256,19 +281,25 @@ int main()
    fbuf_init();
    kprintf("Welcome to Wanix in ARM\n");
    kbd_init();
-   /*Create timers*/
-   VIC_INTENABLE |= (1<<4);
-   VIC_INTENABLE |= (1<<5);
    /* enable SIC interrupts */
    VIC_INTENABLE |= (1<<31); // SIC to VIC's IRQ31
    /* enable KBD IRQ */
    SIC_INTENABLE = (1<<3); // KBD int=bit3 on SIC
    SIC_ENSET = (1<<3);  // KBD int=3 on SIC
+   VIC_INTENABLE = 0;
+    /*Create timers*/
+   VIC_INTENABLE |= (1<<4);
+   VIC_INTENABLE |= (1<<5);
+
    *(kp->base+KCNTL) = 0x12;
    timer_init();
    //timer_start(0);
    init();
-
+   for(i = 0; i < 4; i++)
+   {
+     tp[i] = &timer[i];
+     timer_start(i);
+   }
    printQ(readyQueue);
    kfork();   // kfork P1 into readyQueue  
 
