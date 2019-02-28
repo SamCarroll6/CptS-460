@@ -87,6 +87,8 @@ typedef struct proc{
   int    priority;
   int    pid;
   int    ppid;
+  struct proc *child;     // first child PROC pointer       
+  struct proc *sibling;   // sibling PROC pointer  
   struct proc *parent;
   int    event;
   int    exitCode;

@@ -31,10 +31,10 @@ int search(INODE *ip, char *name)
               dp->name[dp->name_len] = c; // restore that last byte
               cp += dp->rec_len;
               dp = (DIR *)cp;
-	}
+	        }
      }
    }
-   printf("serach failed\n");
+   printf("search failed\n");
 }
 
 int load(char *filename, PROC *p)

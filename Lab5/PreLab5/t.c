@@ -31,7 +31,7 @@ int color;
 #include "kernel.c"
 #include "fork.c"
 #include "svc.c"
-
+#include "wait.c"
 #include "sdc.c"
 // #include "yourload.c"
 
@@ -136,7 +136,7 @@ int main()
    kfork("u2");
    kfork("u3");
    kfork("u4");
-   
+   printBody();
    unlock();
    color = WHITE;
    kprintf("P0 switch to P1\n");

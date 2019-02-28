@@ -48,6 +48,8 @@ typedef volatile struct kbd{
 
 int kputc(char);
 
+int held[128] = {0};
+
 volatile KBD kbd;
 int shifted = 0;
 int release = 0;
@@ -104,7 +106,56 @@ void kbd_handler1()
 // kbd_handelr2() for scan code set 2
 void kbd_handler2()
 {
-  // YOUR scan code set 2 code here
+    u8 scode, c;
+  KBD *kp = &kbd;
+
+  scode = *(kp->base + KDATA);
+
+  //printf("scan code = %x ", scode);
+  
+    if (scode == 0xF0){       // key release 
+     //release = 1;           // set flag
+     return;
+  }
+  
+  if (held[scode] == 1 && scode){    // next scan code following key release
+     held[scode] = 0;
+     //release = 0;           // clear flag 
+     return;
+  }
+
+  held[scode] = 1;
+
+  if(scode == 0x12 || scode == 0x59 || scode == 0x14)
+    return;
+
+  if(held[0x14] == 1 && ltab[scode] == 'c') // if control held and 'c' pressed
+  {
+    printf("Control-c Key\n");
+    return;
+  }
+  else if(held[0x14] == 1 && ltab[scode] == 'd') // if control held and 'd' pressed
+  {
+     c = 0x04;
+  }
+  else if (held[0x12] == 1 || held[0x59] == 1)  // If shift key held
+  {         
+     c = utab[scode];
+  }
+  else  // No significant keys held               
+  {
+     c = ltab[scode];
+  }
+
+  if (c == '\r')
+     kputc('\n');
+  kputc(c);
+
+  kp->buf[kp->head++] = c;
+  kp->head %= 128;
+
+  kp->data++;
+  kp->room--;
 }
 
 void kbd_handler()
