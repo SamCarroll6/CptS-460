@@ -26,6 +26,5 @@ SECTIONS
   abt_stack_top = .;
   . = . + 0x1000; /* 4kB of und stack memory */
   und_stack_top = .;
-
 }
 

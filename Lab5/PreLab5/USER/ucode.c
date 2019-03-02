@@ -32,17 +32,37 @@ int ubody(char *name)
        ups();
     if (strcmp(line, "chname")==0)
        uchname();
-
+    if (strcmp(line, "sleep") == 0)
+       usleep();
+    if (strcmp(line, "wakeup") == 0)
+       uwakeup();
+    if (strcmp(line, "wait") == 0)
+       uwait();
     if (strcmp(line, "switch")==0)
        uswitch();
   }
 }
 
+int usleep()
+{
+
+}
+
+int uwakeup()
+{
+
+}
+
+int uwait()
+{
+
+}
+
 int umenu()
 {
-  uprintf("-------------------------------\n");
-  uprintf("getpid getppid ps chname switch\n");
-  uprintf("-------------------------------\n");
+  uprintf("-------------------------------------------------\n");
+  uprintf("getpid getppid ps chname switch sleep wait wakeup\n");
+  uprintf("-------------------------------------------------\n");
 }
 
 int getpid()
