@@ -106,7 +106,7 @@ void kbd_handler1()
 // kbd_handelr2() for scan code set 2
 void kbd_handler2()
 {
-      u8 scode, c;
+    u8 scode, c;
   KBD *kp = &kbd;
 
   scode = *(kp->base + KDATA);

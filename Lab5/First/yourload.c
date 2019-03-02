@@ -31,13 +31,13 @@ int search(INODE *ip, char *name)
               dp->name[dp->name_len] = c; // restore that last byte
               cp += dp->rec_len;
               dp = (DIR *)cp;
-	}
+	        }
      }
    }
-   printf("serach failed\n");
+   printf("search failed\n");
 }
 
-load(char *filename, PROC *p)
+int load(char *filename, PROC *p)
 { 
   int    i, me, blk, iblk, count;
   char   *cp, *name[2], *addr;
@@ -48,7 +48,7 @@ load(char *filename, PROC *p)
 
   name[0] = "bin";
   name[1] = filename;
-
+  // 0x20000000 instead of 0x100000 for 2gb instead of 1? 
   addr = (char *)(0x800000 + (p->pid - 1)*0x100000);
   printf("loading %s: ", filename);
   

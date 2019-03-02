@@ -113,6 +113,7 @@ PROC *kfork(char *filename)
 
   kprintf("proc %d kforked a child %d: ", running->pid, p->pid); 
   printQ(readyQueue);
+  addChild(p, running->pid);
 
   return p;
 }
