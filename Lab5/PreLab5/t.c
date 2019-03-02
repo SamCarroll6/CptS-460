@@ -33,7 +33,7 @@ int color;
 #include "svc.c"
 #include "wait.c"
 #include "sdc.c"
-// #include "yourload.c"
+#include "yourload.c"
 
 
 void copy_vectors(void) {
