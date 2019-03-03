@@ -45,17 +45,27 @@ int ubody(char *name)
 
 int usleep()
 {
-
+  char s[12];
+  int i;
+  uprintf("enter an event value to sleep on : ");
+  ugetline(s);
+  i = atoi(s);
+  return syscall(6,i,0,0);
 }
 
 int uwakeup()
 {
-
+  char s[12];
+  int i;
+  uprintf("enter an event value to wakeup with : ");
+  ugetline(s);
+  i = atoi(s);
+  return syscall(7,i,0,0);
 }
 
 int uwait()
 {
-
+  return syscall(5,0,0,0);
 }
 
 int umenu()

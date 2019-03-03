@@ -60,14 +60,16 @@ int kgetPA()
 int svc_handler(int a, int b, int c, int d)
 {
   int r; 
-
+  int status;
   switch(a){
      case 0: r = kgetpid();          break;
      case 1: r = kgetppid();         break;
      case 2: r = kps();              break;
      case 3: r = kchname((char *)b); break;
      case 4: r = ktswitch();         break;
-
+     case 5: r = wait(running, &status);             break;
+     case 6: r = ksleep(b);           break;
+     case 7: r = kwakeup(b);          break;
      case 90: r = kgetc() & 0x7F;    break;
      case 91: r = kputc(b);          break;
      case 92: r = kgetPA();          break;
