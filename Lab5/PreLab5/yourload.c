@@ -49,7 +49,7 @@ load(char *filename, PROC *p)
   name[0] = "bin";
   name[1] = filename;
 
-  addr = (char *)(0x800000 + (p->pid - 1)*0x100000);
+  addr = (char *)(0x800000 + (p->pid - 1)*0x200000);
   printf("loading %s: ", filename);
   
   /* read blk#2 to get group descriptor 0 */
