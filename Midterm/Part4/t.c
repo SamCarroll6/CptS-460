@@ -47,36 +47,62 @@ void IRQ_handler()
     int vicstatus, sicstatus;
     int ustatus, kstatus;
 
-    // read VIC SIV status registers to find out which interrupt
+    // read VIC status register to find out which interrupt
     vicstatus = VIC_STATUS;
     sicstatus = SIC_STATUS;  
-    if (vicstatus & 0x80000000){ // SIC interrupts=bit_31=>KBD at bit 3 
-       if (sicstatus & 0x08){
-          kbd_handler();
+
+    if (vicstatus & 0x0010){
+         timer0_handler(0);
+    }
+
+    // if (vicstatus & 0x1000){
+    //      uart_handler(&uart[0]);
+    // }
+    // if (vicstatus & 0x2000){
+    //      uart_handler(&uart[1]);
+    // }
+    if (vicstatus & (1<<31)){
+      if (sicstatus & (1<<3)){
+          kbd_handler(0);
        }
+       // SDC interrupt at 22 on SIC
+      //  if (sicstatus & (1<<22)){
+      //     sdc_handler();
+      //  }
     }
-    if(vicstatus & (1<<4))
-    {
-      if(*(tp[0]->base+TVALUE) == 0)
-      {
-        timer_handler(0);
-      }
-      if(*(tp[1]->base+TVALUE) == 0)
-      {
-        timer_handler(1);
-      }
-    }
-    if(vicstatus & (1<<5))
-    {
-      if(*(tp[2]->base+TVALUE) == 0)
-      {
-        timer_handler(2);
-      }
-      if(*(tp[3]->base+TVALUE) == 0)
-      {
-        timer_handler(3);
-      }
-    }
+    // int vicstatus, sicstatus;
+    // int ustatus, kstatus;
+
+    // // read VIC SIV status registers to find out which interrupt
+    // vicstatus = VIC_STATUS;
+    // sicstatus = SIC_STATUS;  
+    // if (vicstatus & 0x80000000){ // SIC interrupts=bit_31=>KBD at bit 3 
+    //    if (sicstatus & 0x08){
+    //       kbd_handler();
+    //    }
+    // }
+    // if(vicstatus & (1<<4))
+    // {
+    //   if(*(tp[0]->base+TVALUE) == 0)
+    //   {
+    //     timer_handler(0);
+    //   }
+    //   if(*(tp[1]->base+TVALUE) == 0)
+    //   {
+    //     timer_handler(1);
+    //   }
+    // }
+    // if(vicstatus & (1<<5))
+    // {
+    //   if(*(tp[2]->base+TVALUE) == 0)
+    //   {
+    //     timer_handler(2);
+    //   }
+    //   if(*(tp[3]->base+TVALUE) == 0)
+    //   {
+    //     timer_handler(3);
+    //   }
+    // }
 }
 
 // initialize the MT system; create P0 as initial running process
@@ -281,19 +307,18 @@ int main()
    fbuf_init();
    kprintf("Welcome to Wanix in ARM\n");
    kbd_init();
+   VIC_INTENABLE |= (1<<4);     // timer0,1 at 4 
    /* enable SIC interrupts */
    VIC_INTENABLE |= (1<<31); // SIC to VIC's IRQ31
    /* enable KBD IRQ */
    SIC_INTENABLE = (1<<3); // KBD int=bit3 on SIC
    SIC_ENSET = (1<<3);  // KBD int=3 on SIC
-   VIC_INTENABLE = 0;
+  //  VIC_INTENABLE = 0;
     /*Create timers*/
-   VIC_INTENABLE |= (1<<4);
-   VIC_INTENABLE |= (1<<5);
 
    *(kp->base+KCNTL) = 0x12;
    timer_init();
-
+   timer_start(0);
    init();
   //  for(i = 0; i < 4; i++)
   //  {
