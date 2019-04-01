@@ -1,6 +1,6 @@
 #include "ucode.c"
 
-main()
+int main()
 {
   printf("Aloha\n");
   ubody("three");

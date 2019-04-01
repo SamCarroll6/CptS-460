@@ -10,7 +10,6 @@ int ubody(char *name)
   int pid, ppid;
   char line[64];
   u32 mode,  *up;
-
   mode = getcsr();
   mode = mode & 0x1F;
   printf("CPU mode=%x\n", mode);
@@ -18,6 +17,7 @@ int ubody(char *name)
   ppid = getppid();
 
   while(1){
+    printf("NAME IS HERE: %s\n", name);
     printf("This is process #%d in Umode at %x parent=%d\n", pid, getPA(),ppid);
     umenu();
     printf("input a command : ");
