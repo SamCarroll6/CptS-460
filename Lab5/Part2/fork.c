@@ -92,7 +92,6 @@ PROC *kfork(char *filename)
   addr = (char *)(0x800000 + (p->pid - 1)*0x100000);
 
   load(filename, p);
-  
   // must fix Umode ustack for it to goUmode: how did the PROC come to Kmode?
   // by swi # from VA=0 in Umode => at that time all CPU regs are 0
   // we are in Kmode, p's ustack is at its Uimage (8mb+(pid-1)*1mb) high end
@@ -119,4 +118,82 @@ PROC *kfork(char *filename)
   printQ(readyQueue);
   addChild(p, running->pid);
   return p;
+}
+
+int fork()
+{
+  int i;
+  char *PA, *CA;
+  PROC *p = dequeue(&freeList);
+  // Check if dequeue worked, if not, return since no available procs left.
+  if (p==0){
+    kprintf("kfork failed\n");
+    return (PROC *)0;
+  }
+  
+  p->ppid = running->pid;
+  printf("%d\n", p->pid);
+  p->parent = running;
+  p->status = READY;
+  p->priority = 1;
+  PA = (char*)(running->pgdir[2048] & 0xFFFF0000);
+  CA = (char*)(p->pgdir[2048] & 0xFFFF0000);
+  printf("blah\n");
+  memcpy((char*)CA, (char*)PA, 0x100000);
+  printf("hoo\n");
+
+  for(i = 1; i <= 14; i++)
+  {
+    p->kstack[SSIZE - i] = running->kstack[SSIZE - i];
+  }
+
+  p->kstack[SSIZE - 14] = 0;
+  printf("HERE1\n");
+  p->kstack[SSIZE - 15] = (int)goUmode;
+  printf("HERE\n");
+  p->ksp = &(p->kstack[SSIZE-28]);
+  p->usp = running->usp;
+  p->cpsr = running->cpsr;
+
+  enqueue(&readyQueue, p);
+
+  kprintf("proc %d kforked a child %d: ", running->pid, p->pid); 
+  printQ(readyQueue);
+  addChild(p, running->pid);
+  return p->pid;
+}
+
+int exec(char *cmdline)
+{
+  kprintf("line=%s\n", cmdline);
+  int i, upa, usp;
+  char *cp, kline[128], file[32], filename[32];
+  PROC *p = running;
+  strcpy(kline, cmdline);
+  cp = kline;
+  i = 0;
+  while(*cp != ' ')
+  {
+    filename[i] = *cp;
+    i++;
+    cp++;
+  }
+  filename[i] = '\0';
+  file[0] = '\0';
+  if(filename[0] != '/')
+  {
+    strcpy(file, "/bin/");
+  }
+  kstrcat(file, filename);
+  upa = p->pgdir[2048] & 0xFFFF0000;
+  if(!load(file, p))
+    return -1;
+  usp = upa + 0x100000 - 128;
+  strcpy((char*)usp, kline);
+  for(i = 2; i < 14; i++)
+  {
+    p->kstack[SSIZE - i] = 0;
+  }
+  p->kstack[SSIZE - 1] = (int)VA(0);
+  return (int)p->usp;
 }

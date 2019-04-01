@@ -39,16 +39,35 @@ int search(INODE *ip, char *name)
 
 load(char *filename, PROC *p)
 { 
-  int    i, me, blk, iblk, count;
-  char   *cp, *name[2], *addr;
+  int    i, me, blk, iblk, count, u;
+  char   *cp, *name[2], *addr, hold[64];
   u32    *up;
   GD     *gp;
   INODE  *ip;
   DIR    *dp;
-
-  name[0] = "bin";
+  if(filename[0] != '/')
+  {
+     name[0] = "bin";
+  }
+  else
+  {
+    u = 0;
+    filename++;
+    while(*filename != '/')
+    {
+      printf("%c\n", *filename);
+      hold[u] = *filename;
+      u++;
+      filename++;
+    }
+    filename++;
+    printf("HOLD %s\n", hold);
+    name[0] = hold;
+  }
+  printf("%s\n", name[0]);
   name[1] = filename;
-
+  printf("%s\n", name[0]);
+  printf("This HERE: %s\n", filename);
   addr = (char *)(0x800000 + (p->pid - 1)*0x100000);
   printf("loading %s: ", filename);
   

@@ -83,4 +83,5 @@ int memcpy(char *dest, char *src, int size)
   for (i=0; i<size; i++){
     *dest++ = *src++;
   }
+  printf("out\n");
 }

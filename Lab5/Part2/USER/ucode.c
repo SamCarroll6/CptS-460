@@ -44,7 +44,24 @@ int ubody(char *name)
       uexit();
     if (strcmp(line, "fork") == 0)
       ufork();
+    if (strcmp(line, "kfork") == 0)
+      ukfork();
+    if (strcmp(line, "exec") == 0)
+      uexec();
   }
+}
+
+int ukfork()
+{
+  return syscall(10, 0, 0, 0);
+}
+
+int uexec()
+{
+  char s[256];
+  uprintf("enter a command string : ");
+  ugetline(s);
+  return syscall(11, s, 0, 0);
 }
 
 int ufork()
@@ -87,9 +104,9 @@ int uwait()
 
 int umenu()
 {
-  uprintf("-----------------------------------------------------------\n");
-  uprintf("getpid getppid ps chname switch sleep wait wakeup exit fork\n");
-  uprintf("-----------------------------------------------------------\n");
+  uprintf("----------------------------------------------------------------------\n");
+  uprintf("getpid getppid ps chname switch sleep wait wakeup exit fork kfork exec\n");
+  uprintf("----------------------------------------------------------------------\n");
 }
 
 int getpid()
