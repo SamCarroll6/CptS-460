@@ -123,6 +123,7 @@ PROC *kfork(char *filename)
 int fork()
 {
   int i;
+  int *ptable, pentry;
   char *PA, *CA;
   PROC *p = dequeue(&freeList);
   // Check if dequeue worked, if not, return since no available procs left.
@@ -136,12 +137,32 @@ int fork()
   p->parent = running;
   p->status = READY;
   p->priority = 1;
+  // build p's pgtable 
+  p->pgdir = (int *)(0x600000 + (p->pid - 1)*0x4000);
+  ptable = p->pgdir;
+  // initialize pgtable
+  for (i=0; i<4096; i++)
+    ptable[i] = 0;
+  pentry = 0x412;
+  for (i=0; i<258; i++){
+    ptable[i] = pentry;
+    pentry += 0x100000;
+  }
+  // ptable entry flag=|AP0|doma|1|CB10|=110|0001|1|1110|=0xC3E or 0xC32       
+  //ptable[2048] = 0x800000 + (p->pid - 1)*0x100000|0xC3E;
+  /*
+      TJ
+  */
+  ptable[2048] = 0x800000 + (p->pid - 1)*0x100000|0xC32;
+  // ptable[2049] = 0x900000 + (p->pid - 1)*0x200000|0xC32;
   PA = (char*)(running->pgdir[2048] & 0xFFFF0000);
+  printf("pgdir[2048] = %x\n", PA);
+  //PA = (int *)(0x600000 + (p->pid - 1)*0x4000);
   CA = (char*)(p->pgdir[2048] & 0xFFFF0000);
+  printf("pgdir[2048] = %x\n", CA);
   printf("blah\n");
   memcpy((char*)CA, (char*)PA, 0x100000);
   printf("hoo\n");
-
   for(i = 1; i <= 14; i++)
   {
     p->kstack[SSIZE - i] = running->kstack[SSIZE - i];

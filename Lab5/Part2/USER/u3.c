@@ -2,5 +2,6 @@
 
 main()
 {
+  printf("Aloha\n");
   ubody("three");
 }
