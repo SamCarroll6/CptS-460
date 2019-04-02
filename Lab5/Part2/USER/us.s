@@ -4,7 +4,7 @@
 // upon entry, bl main0 => r0 contains pointer to the string in ustack
 
 entryPoint:	
-	bl main
+	bl main0
 	
 // if main0() ever retrun: syscall to exit(0)
 	

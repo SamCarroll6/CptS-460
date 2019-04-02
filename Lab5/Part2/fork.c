@@ -209,10 +209,12 @@ int exec(char *cmdline)
   }
   usp = upa + 0x100000 - 128;
   strcpy((char*)usp, kline);
+  p->usp = (int *)VA(0x100000 - 128);
   for(i = 2; i < 14; i++)
   {
     p->kstack[SSIZE - i] = 0;
   }
   p->kstack[SSIZE - 1] = (int)VA(0);
+  printf("fork print %s\n", (char*)p->usp);
   return (int)p->usp;
 }

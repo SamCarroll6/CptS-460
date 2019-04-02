@@ -59,6 +59,7 @@ int ufork()
 int uexec()
 {
   char s[256];
+  char *hold;
   uprintf("enter a command string : ");
   ugetline(s);
   return syscall(11, s, 0, 0);
