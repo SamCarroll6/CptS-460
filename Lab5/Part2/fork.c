@@ -156,22 +156,18 @@ int fork()
   ptable[2048] = 0x800000 + (p->pid - 1)*0x100000|0xC32;
   // ptable[2049] = 0x900000 + (p->pid - 1)*0x200000|0xC32;
   PA = (char*)(running->pgdir[2048] & 0xFFFF0000);
-  printf("pgdir[2048] = %x\n", PA);
+  printf("PA pgdir[2048] = %x\n", PA);
   //PA = (int *)(0x600000 + (p->pid - 1)*0x4000);
   CA = (char*)(p->pgdir[2048] & 0xFFFF0000);
-  printf("pgdir[2048] = %x\n", CA);
-  printf("blah\n");
+  printf("CA pgdir[2048] = %x\n", CA);
   memcpy((char*)CA, (char*)PA, 0x100000);
-  printf("hoo\n");
   for(i = 1; i <= 14; i++)
   {
     p->kstack[SSIZE - i] = running->kstack[SSIZE - i];
   }
 
   p->kstack[SSIZE - 14] = 0;
-  printf("HERE1\n");
   p->kstack[SSIZE - 15] = (int)goUmode;
-  printf("HERE\n");
   p->ksp = &(p->kstack[SSIZE-28]);
   p->usp = running->usp;
   p->cpsr = running->cpsr;
@@ -208,7 +204,9 @@ int exec(char *cmdline)
   kstrcat(file, filename);
   upa = p->pgdir[2048] & 0xFFFF0000;
   if(!load(file, p))
+  {
     return -1;
+  }
   usp = upa + 0x100000 - 128;
   strcpy((char*)usp, kline);
   for(i = 2; i < 14; i++)

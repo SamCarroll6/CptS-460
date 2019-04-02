@@ -42,16 +42,16 @@ int ubody(char *name)
        uswitch();
     if (strcmp(line, "exit") == 0)
       uexit();
-    if (strcmp(line, "fork") == 0)
-      ufork();
     if (strcmp(line, "kfork") == 0)
       ukfork();
+    if (strcmp(line, "fork") == 0)
+      ufork();
     if (strcmp(line, "exec") == 0)
       uexec();
   }
 }
 
-int ukfork()
+int ufork()
 {
   return syscall(10, 0, 0, 0);
 }
@@ -64,7 +64,7 @@ int uexec()
   return syscall(11, s, 0, 0);
 }
 
-int ufork()
+int ukfork()
 {
   char s[12];
   uprintf("enter user type to fork on (u1, u2, u3, u4) : ");
@@ -105,7 +105,7 @@ int uwait()
 int umenu()
 {
   uprintf("----------------------------------------------------------------------\n");
-  uprintf("getpid getppid ps chname switch sleep wait wakeup exit fork kfork exec\n");
+  uprintf("getpid getppid ps chname switch sleep wait wakeup exit kfork fork exec\n");
   uprintf("----------------------------------------------------------------------\n");
 }
 
