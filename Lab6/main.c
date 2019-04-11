@@ -154,7 +154,11 @@ int main(int argc, char *argv[ ])
       readlink(line);
       printf("symlink name = %s\n", line);
     }
-
+    if (strcmp(cmd, "open") == 0)
+    {  
+      open_file();
+      printf("open_file%d\n", running->cwd->ino);
+    }
     if (strcmp(cmd, "quit")==0)
        quit();
   }

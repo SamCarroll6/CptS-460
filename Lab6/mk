@@ -1,5 +1,5 @@
 mkdisk
 
 rm a.out
-cc -m32 main.c util.c OBJ/*.o
+cc -m32 main.c util.c open_close_lseek.c OBJ/*.o
 a.out
