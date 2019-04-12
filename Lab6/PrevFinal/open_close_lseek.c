@@ -31,7 +31,6 @@ int mytruncate(MINODE *mip, int mode)
     pip->i_atime = time(NULL);
     pip->i_blocks = 0;
     pip->i_size = 0;
-    mip->dirty = 1;
 }
 
 int checkUmode(char *Umode, MINODE *pathfollow)
@@ -144,6 +143,7 @@ int open_file()
             new->refCount++;
             running->fd[empty] = new;
             pathfollow->dirty = 1;
+            return empty;
         }
     }
     else
