@@ -1,5 +1,40 @@
 #include "header.h"
 
+int mytruncate(MINODE *mip, int mode)
+{
+    // nblocks, BLKSIZE
+    int i;
+    INODE *pip = &mip->INODE;
+    int device = mip->dev, bno;
+    int buf[BLKSIZE];
+    for(i = 0; i < 12 && pip->i_block[i] != 0; i++)
+    {
+        if(pip->i_block[i] == 0)
+        {
+            break;
+        }
+        bdalloc(device, pip->i_block[i]);
+    }
+    bno = pip->i_block[12];
+    if(pip->i_block[12] != 0)
+    {
+        bdallocindirects(device, pip->i_block[12]);
+    }
+    if(pip->i_block[13] != 0)
+    {
+        get_block(device, pip->i_block[13], buf);
+        for(i = 0; i < 256; i++)
+        {
+            bdallocindirects(device, buf[i]);
+        }
+    }
+    pip->i_mtime = time(NULL);
+    pip->i_atime = time(NULL);
+    pip->i_blocks = 0;
+    pip->i_size = 0;
+    mip->dirty = 1;
+}
+
 int checkUmode(char *Umode, MINODE *pathfollow)
 {
     printf("%s\n", Umode);
@@ -77,7 +112,7 @@ int open_file()
                 if(running->fd[i]->mptr->ino == pathfollow->ino && check != 0)
                 {
                     printf("Error : file already opened\n");
-                    return 0;
+                    return -1;
                 }
             }
             if(running->fd[i] == 0 && hold)
@@ -89,11 +124,11 @@ int open_file()
         if(empty == -1)
         {
             printf("Error : No available FD's\n");
-            return 0;
+            return -1;
         }
         if(check)
         {
-            if(check - 1 == 3)
+            if(check - 1 == APPEND)
             {
                 new->offset = pathfollow->INODE.i_size;
             }
@@ -101,16 +136,21 @@ int open_file()
             {
                 new->offset = 0;
             }
+            if(check - 1 == W)
+            {
+                mytruncate(pathfollow, check);
+            }
             new->mode = check - 1;
             new->mptr = pathfollow;
             new->refCount++;
             running->fd[empty] = new;
+            pathfollow->dirty = 1;
         }
     }
     else
     {
         printf("File is of type directory and can't be opened\n");
-        return 0;
+        return -1;
     }
-    return 0;
+    return -1;
 }

@@ -51,7 +51,6 @@ int idalloc(int dev, int ino)
 int bdalloc(int dev, int bno)
 {
     char buf[BLKSIZE];
-
     if(bno > nblocks)
     {
         printf("block %d out of range\n", bno);
@@ -63,4 +62,19 @@ int bdalloc(int dev, int bno)
     put_block(dev, bmap, buf);
 
     incfreeblocks(dev);
+}
+
+
+int bdallocindirects(int device, int bno)
+{
+    int i;
+    int buf[BLKSIZE];
+    get_block(device, bno, buf);
+    for(i = 0; i < 256; i++)
+    {
+        printf("%d\n", buf[i]);
+        if(buf[i] == 0)
+            break;
+        bdalloc(device, buf[i]);
+    }
 }

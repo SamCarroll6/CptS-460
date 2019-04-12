@@ -34,6 +34,10 @@ DIR   *dp;
 #define NFD        10
 #define NMOUNT      4
 #define NPROC       2
+#define R           0
+#define W           1
+#define WR          2
+#define APPEND      3
 
 typedef struct minode{
   INODE INODE;
@@ -116,6 +120,7 @@ int incfreeinodes(int dev);
 int incfreeblocks(int dev);
 int idalloc(int dev, int ino);
 int bdalloc(int dev, int bno);
+int bdallocindirects(int dev, int bno);
 
 // MKDIR
 int mdir(void);
