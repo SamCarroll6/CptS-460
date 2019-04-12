@@ -87,6 +87,7 @@ int search(INODE *pip, char *name);
 int is_empty(MINODE *mip);
 void menu(void);
 int getarrayval(char *input);
+char* readcustominput(char *statement);
 
 // PWD, CD, LS functions
 void lsdo(void);
@@ -140,7 +141,8 @@ int touch(void);
 int mychmod(void);
 
 // Open, Close, lseek
-
+int open_file();
+int checkUmode(char *Umode, MINODE *pathtofollow);
 
 // Read, Cat
 

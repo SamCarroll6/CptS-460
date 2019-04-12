@@ -317,22 +317,37 @@ int is_empty(MINODE *mip)
 void menu(void)
 {
     printf("==================== MENU ====================\n");
-	printf("mkdir  rmdir  ls  cd  pwd  creat  touch\nrm  link  unlink  symlink  chmod  quit\n");
+	printf("mkdir  rmdir  ls  cd  pwd  creat  touch\nrm  link  unlink  symlink  chmod  quit  open\n");
     printf("==============================================\n");
 }
 
 int getarrayval(char *input)
 {
     int i = 0;
-    char *pars[13] = {"ls", "cd", "pwd", "quit", "mkdir", "creat", "rmdir", "symlink", "link", "touch", "unlink", "chmod", "menu"};
+    char *pars[14] = {"ls", "cd", "pwd", "quit", "mkdir", "creat", "rmdir", "symlink", "link", "touch", "unlink", "chmod", "menu", "open"};
     if(!strcmp(input, "rm"))
         return 10;
     if(!strcmp(input, "help") || !strcmp(input, "?"))
         return 12;
-    for(i; i < 13; i++)
+    for(i; i < 14; i++)
     {
         if(!strcmp(input, pars[i]))
             return i;
     }
     return -1;
+}
+
+char* readcustominput(char *statement)
+{
+    char *token;
+    int i = 1, reset = 0;
+    char line[1024];
+    char *linecpy;
+    printf("%s", statement);
+    fgets(line, sizeof(line), stdin);
+    reset = strlen(line);
+    linecpy = (char*)malloc(sizeof(char) * reset);
+    strcpy(linecpy, line);
+    strtok(linecpy, "\n");
+    return linecpy;
 }
