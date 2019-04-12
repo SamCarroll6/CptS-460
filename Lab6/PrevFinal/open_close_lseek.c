@@ -145,6 +145,12 @@ int open_file()
             pathfollow->dirty = 1;
             return empty;
         }
+        else
+        {
+            printf("Error : Open failed due to permissions\n");
+            return -1;
+        }
+        
     }
     else
     {
