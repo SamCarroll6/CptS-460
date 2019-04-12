@@ -8,6 +8,7 @@
 int rm_dir(void)
 {
     int i = 0;
+    int buf[BLKSIZE];
     MINODE *path, *parent;
     // Ensure pathname provided 
     if(name[0] == NULL)
@@ -83,6 +84,18 @@ int rm_dir(void)
         for(i = 0; i < 12 && cip->i_block[i] != 0; i++)
         {
             bdalloc(path->dev, cip->i_block[i]);
+        }
+        if(cip->i_block[12] != 0)
+        {
+            bdallocindirects(path->dev, cip->i_block[12]);
+        }
+        if(cip->i_block[13] != 0)
+        {
+            get_block(path->dev, cip->i_block[13], buf);
+            for(i = 0; i < 256; i++)
+            {
+                bdallocindirects(path->dev, buf[i]);
+            }
         }
         // deallocate ino in dir to be removed.
         idalloc(path->dev, path->ino);

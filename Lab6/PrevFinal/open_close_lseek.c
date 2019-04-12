@@ -5,7 +5,7 @@ int mytruncate(MINODE *mip, int mode)
     // nblocks, BLKSIZE
     int i;
     INODE *pip = &mip->INODE;
-    int device = mip->dev, bno;
+    int device = mip->dev;
     int buf[BLKSIZE];
     for(i = 0; i < 12 && pip->i_block[i] != 0; i++)
     {
@@ -15,7 +15,6 @@ int mytruncate(MINODE *mip, int mode)
         }
         bdalloc(device, pip->i_block[i]);
     }
-    bno = pip->i_block[12];
     if(pip->i_block[12] != 0)
     {
         bdallocindirects(device, pip->i_block[12]);
