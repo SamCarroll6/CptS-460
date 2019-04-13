@@ -317,19 +317,19 @@ int is_empty(MINODE *mip)
 void menu(void)
 {
     printf("==================== MENU ====================\n");
-	printf("mkdir  rmdir  ls  cd  pwd  creat  touch\nrm  link  unlink  symlink  chmod  quit  open\n");
+	printf("mkdir  rmdir  ls  cd  pwd  creat  touch  pfd\nrm  link  unlink  symlink  chmod  quit  open\n");
     printf("==============================================\n");
 }
 
 int getarrayval(char *input)
 {
     int i = 0;
-    char *pars[14] = {"ls", "cd", "pwd", "quit", "mkdir", "creat", "rmdir", "symlink", "link", "touch", "unlink", "chmod", "menu", "open"};
+    char *pars[15] = {"ls", "cd", "pwd", "quit", "mkdir", "creat", "rmdir", "symlink", "link", "touch", "unlink", "chmod", "menu", "open", "pfd"};
     if(!strcmp(input, "rm"))
         return 10;
     if(!strcmp(input, "help") || !strcmp(input, "?"))
         return 12;
-    for(i; i < 14; i++)
+    for(i; i < 15; i++)
     {
         if(!strcmp(input, pars[i]))
             return i;

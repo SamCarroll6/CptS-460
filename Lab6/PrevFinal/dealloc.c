@@ -72,7 +72,6 @@ int bdallocindirects(int device, int bno)
     get_block(device, bno, buf);
     for(i = 0; i < 256; i++)
     {
-        printf("%d\n", buf[i]);
         if(buf[i] == 0)
             break;
         bdalloc(device, buf[i]);

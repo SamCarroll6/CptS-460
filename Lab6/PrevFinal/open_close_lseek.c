@@ -35,7 +35,6 @@ int mytruncate(MINODE *mip, int mode)
 
 int checkUmode(char *Umode, MINODE *pathfollow)
 {
-    printf("%s\n", Umode);
     INODE* pip = &pathfollow->INODE;
     u16 mode = pip->i_mode;
     char *test;
@@ -62,6 +61,7 @@ int checkUmode(char *Umode, MINODE *pathfollow)
         free(test);
         return (mode & S_IWUSR) ? 4 : 0;
     }
+    return 0;
 }
 
 int open_file()
@@ -158,4 +158,42 @@ int open_file()
         return -1;
     }
     return -1;
+}
+
+int pfd(void)
+{
+    int i;
+    MINODE *mip;
+    printf(" fd     mode    offset    inode\n");
+    printf("----    ----    ------    -----\n");
+    for(i = 0; i < NFD; i++)
+    {
+        if(running->fd[i] != 0)
+        {
+            printf("  %d     ", i);
+            switch(running->fd[i]->mode)
+            {
+                case R:
+                    printf("READ    ");
+                    break;
+                case W:
+                    printf("WRITE   ");
+                    break;
+                case WR:
+                    printf(" RW     ");
+                    break;
+                case APPEND:
+                    printf("APPEND  ");
+                    break;
+                default:
+                    printf("No Mode stored\n");
+                    return 0;
+            }
+            printf("%6d", running->fd[i]->offset);
+            printf("   ");
+            mip = running->fd[i]->mptr;
+            printf("[ %d , %d ]", mip->dev, mip->ino);
+            putchar('\n');
+        }
+    }
 }
