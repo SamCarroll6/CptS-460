@@ -147,8 +147,11 @@ int mychmod(void);
 
 // Open, Close, lseek
 int open_file();
+int preopen();
 int checkUmode(char *Umode, MINODE *pathtofollow);
 int pfd(void);
+int close_file(int fd);
+int pre_close();
 
 // Read, Cat
 

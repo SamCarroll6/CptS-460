@@ -21,6 +21,16 @@ int myunlink(void)
         INODE *pip = &mip->INODE;
         if(S_ISLNK(pip->i_mode) || S_ISREG(pip->i_mode))
         {
+            for(i = 0; i < NFD; i++)
+            {
+                if(running->fd[i])
+                {
+                    if(running->fd[i]->mptr->ino == mip->ino)
+                    {    
+                        close_file(i);
+                    }
+                }
+            }
             pip->i_links_count--;
             // if no other files linked to this ino we'll
             // deallocate the ino and blocks.

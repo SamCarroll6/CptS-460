@@ -4,7 +4,7 @@ int main(int argc, char *argv[])
 {
     char *diskname = "mydisk";
     char *input, *hold, **path;
-    int (*Farr[15])(void) = {lsdo, chdir, pwd, quit, mdir, creat_file, rm_dir, mysymlink, link, touch, myunlink, mychmod, menu, open_file, pfd};
+    int (*Farr[16])(void) = {lsdo, chdir, pwd, quit, mdir, creat_file, rm_dir, mysymlink, link, touch, myunlink, mychmod, menu, preopen, pfd, pre_close};
     if(argc > 1)
         diskname = argv[1];
     fd = open(diskname, O_RDWR);
@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
         i = 0;
         while(paths[i])
         {
-            printf("%s\n", paths[i]);
             free(paths[i]);
             paths[i] = NULL;
             i++;
