@@ -119,21 +119,32 @@ int read_file(int fd, char buf[], int bytes)
         char *cp = readbuf + start;
         // number of bytes remaining in logical block
         remain = BLKSIZE - start;
-        while(remain > 0)
-        {
-            *cq++ = *cp++;
-            check->offset++;
-            offset = check->offset;
-            count++;
-            avail--;
-            bytes--;
-            remain--;
-            if(bytes <= 0 || avail <= 0)
-            {
-                break;
-            }
-        }
+        int cpy;
+        cpy = (bytes < remain) ? bytes : remain;
+
+        memcpy(cq, cp, cpy);
+        cq = cq + cpy;
+        check->offset += cpy;
+        offset = check->offset;
+        count += cpy;
+        avail -= cpy;
+        bytes -= cpy;
+        // while(remain > 0)
+        // {
+        //     *cq++ = *cp++;
+        //     check->offset++;
+        //     offset = check->offset;
+        //     count++;
+        //     avail--;
+        //     bytes--;
+        //     remain--;
+        //     if(bytes <= 0 || avail <= 0)
+        //     {
+        //         break;
+        //     }
+        // }
     }
+    printf("%s\n", buf);
     printf("Read : read %d char from file %d\n", count, fd);
     return count;
 }  
