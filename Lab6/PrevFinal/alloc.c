@@ -96,3 +96,18 @@ int balloc(int dev)
   }
   return 0;
 }
+
+int ballocindirects(int dev)
+{
+  int i, bno;
+  int buf[BLKSIZE], blank[BLKSIZE];
+  bno = balloc(dev);
+  get_block(dev, bno, buf);
+  for(i = 0; i < 256; i++)
+  {
+      buf[i] = balloc(dev);
+      put_block(dev, buf[i], blank);
+  }
+  put_block(dev, bno, buf);
+  return bno;
+}

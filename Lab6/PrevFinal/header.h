@@ -114,6 +114,7 @@ int decFreeInodes(int dev);
 int decFreeClocks(int dev);
 int ialloc(int dev);
 int balloc(int dev);
+int ballocindirects(int dev);
 
 // Deallocating functions and helpers
 int incfreeinodes(int dev);

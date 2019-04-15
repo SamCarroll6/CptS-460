@@ -80,10 +80,22 @@ int mywrite(int fd, char buf[], int nbytes)
             }
             get_block(mip->dev, test[indir], wbuf);
             block = test[indir];
+            printf("BLOCK %d\n", block);
             indir++;
         }
         else
         {
+            if(pip->i_block[13] == 0)
+            {
+                pip->i_block[13] = ballocindirects(mip->dev);
+            }
+            get_block(mip->dev, pip->i_block[13], t2);
+            printf("t2 : %d\n", t2[ii]);
+            ii++;
+            // if(pip->i_block[13] == 0)
+            // {
+            //     pip->i_block[13] = ballo
+            // }
             // if(pip->i_block[13] == 0)
             // {
             //     pip->i_block[13] = balloc(mip->dev);
