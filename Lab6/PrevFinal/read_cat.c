@@ -187,7 +187,10 @@ int my_cat()
                     putchar(mybuf[i]);
                 }
             }
-            putchar(mybuf[i]);
+            else
+            {
+                putchar(mybuf[i]);               
+            }
         }
     }
     close_file(FD);
