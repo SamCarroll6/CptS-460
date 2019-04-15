@@ -162,5 +162,6 @@ int my_cat();
 // Write, Cp
 int write_file();
 int mywrite(int fd, char buf[], int nbytes);
+int my_cp();
 
 #endif
