@@ -163,5 +163,6 @@ int my_cat();
 int write_file();
 int mywrite(int fd, char buf[], int nbytes);
 int my_cp();
+int my_mv();
 
 #endif

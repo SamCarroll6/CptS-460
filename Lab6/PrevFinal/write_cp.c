@@ -28,15 +28,15 @@ int write_file()
 int mywrite(int fd, char buf[], int nbytes)
 {
     OFT *check;
-    int lbk, startByte, remain, offset, block, count = 0, indir = 0;
+    int lbk, startByte, remain, offset, block, count = 0, indir = 0, ii = 0, ii2;
     MINODE *mip;
     INODE *pip;
     check = running->fd[fd];
     mip = check->mptr;
     pip = &mip->INODE;
     offset = check->offset;
-    int test[BLKSIZE], t2[BLKSIZE];
-    char wbuf[BLKSIZE], *cp, *cq, blank[BLKSIZE];
+    int test[BLKSIZE], t2[BLKSIZE], test2[BLKSIZE], blank2[BLKSIZE];
+    char wbuf[BLKSIZE], *cp, *cq, blank[BLKSIZE] = {'\0'};
 
     if(check == 0)
     {
@@ -80,12 +80,39 @@ int mywrite(int fd, char buf[], int nbytes)
             }
             get_block(mip->dev, test[indir], wbuf);
             block = test[indir];
-            printf("%d\n", block);
             indir++;
         }
         else
         {
-            
+            // if(pip->i_block[13] == 0)
+            // {
+            //     pip->i_block[13] = balloc(mip->dev);
+            //     put_block(mip->dev, pip->i_block[13], t2);
+            //     printf("13 %d\n", pip->i_block[13]);
+            // }
+            // get_block(mip->dev, pip->i_block[13], test);
+            // if(test[ii] == 0)
+            // {
+            //    // printf("ii %d %d\n", ii, test[ii]);
+            //     test[ii] = balloc(mip->dev);
+            //     put_block(mip->dev, test[ii], blank2);
+            // }
+            // get_block(mip->dev, test[ii], test2);
+            // if(test2[ii2] == 0)
+            // {
+            //     test2[ii2] = balloc(mip->dev);
+            //     put_block(mip->dev, test2[ii2], blank);
+            //     printf("ii2 %d %d\n", ii2, test2[ii2]);
+            // }
+            // get_block(mip->dev, test2[ii2], wbuf);
+            // block = test2[ii2];
+            // ii2++;
+            // if(ii2 == 256)
+            // {
+            //     ii++;
+            //     ii2 = 0;
+            // }
+            // printf("ii %d %d\n", ii, test[ii]);
         }
         cp = wbuf + startByte;
         remain = BLKSIZE - startByte;
@@ -138,4 +165,22 @@ int my_cp()
     running->fd[gd]->offset = running->fd[fd]->offset;
     close_file(fd);
     close_file(gd);
+}
+
+int my_mv()
+{
+    int fd, gd, n;
+    char buf[BLKSIZE];
+    if(paths[0] == NULL || paths[1] == NULL)
+    {
+        printf("Error : Invalid src or dest pathname\n");
+        return 0;
+    }
+    char *pass = (char*)(malloc(sizeof(char) * strlen(pathname)));
+    char *pass2 = (char*)(malloc(sizeof(char) * strlen(paths[1])));
+    strcpy(pass, pathname);
+    strcpy(pass2, paths[1]);
+    link();
+    tokenize(pass);
+    myunlink();
 }

@@ -324,12 +324,12 @@ void menu(void)
 int getarrayval(char *input)
 {
     int i = 0;
-    char *pars[20] = {"ls", "cd", "pwd", "quit", "mkdir", "creat", "rmdir", "symlink", "link", "touch", "unlink", "chmod", "menu", "open", "pfd", "close", "read", "cat", "write", "cp"};
+    char *pars[21] = {"ls", "cd", "pwd", "quit", "mkdir", "creat", "rmdir", "symlink", "link", "touch", "unlink", "chmod", "menu", "open", "pfd", "close", "read", "cat", "write", "cp", "mv"};
     if(!strcmp(input, "rm"))
         return 10;
     if(!strcmp(input, "help") || !strcmp(input, "?"))
         return 12;
-    for(i; i < 20; i++)
+    for(i; i < 21; i++)
     {
         if(!strcmp(input, pars[i]))
             return i;
