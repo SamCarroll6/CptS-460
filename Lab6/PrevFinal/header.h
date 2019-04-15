@@ -158,6 +158,7 @@ int checkints(char *s);
 int getIndirects(int device, int bno);
 int my_read();
 int read_file(int fd, char buf[], int bytes);
+int my_cat();
 
 // Write, Cp
 

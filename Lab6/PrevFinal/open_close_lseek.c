@@ -118,6 +118,7 @@ int open_file(char *p1, char *p2)
             pathfollow = findval(running->cwd);
         }
     }
+    int blah = 0;
     check = checktype(pathfollow);
     if(check == 0)
     {

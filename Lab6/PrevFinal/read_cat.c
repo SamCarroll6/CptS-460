@@ -14,11 +14,6 @@ int checkints(char *s)
     return 0;
 }
 
-int getIndirects(int device, int bno)
-{
-
-}
-
 int my_read()
 {
     int val = 0, fd, bytes;
@@ -84,7 +79,7 @@ int read_file(int fd, char buf[], int bytes)
     // bytes available for read
     avail = size - offset;
 
-    while(bytes && avail)
+    while(bytes > 0 && avail > 0)
     {
         // Logical block
         lbk = offset / BLKSIZE;
@@ -144,7 +139,56 @@ int read_file(int fd, char buf[], int bytes)
         //     }
         // }
     }
-    printf("%s\n", buf);
-    printf("Read : read %d char from file %d\n", count, fd);
+    // printf("Read : read %d char from file %d\n", count, fd);
     return count;
 }  
+
+int my_cat()
+{
+    int FD;
+    char *pass;
+    if(name[0] == NULL)
+    {
+        char *loopread;
+        printf("----------------------\n");
+        printf("Reading CAT from stdin\n");
+        printf("----------------------\n");
+        while(1)
+        {
+            loopread = readcustominput("");
+            printf("%s\n", loopread);
+        }
+        return 0;
+    }
+    pass = (char*)(malloc(sizeof(char) * strlen(pathname)));
+    strcpy(pass,pathname);
+    FD = open_file(pass, "R");
+    if(FD == -1)
+    {
+        printf("Error : File could not be opened\n");
+        return 0;
+    }
+    int n, i;
+    char mybuf[BLKSIZE];
+    while(n = read_file(FD, mybuf, BLKSIZE))
+    {
+        mybuf[n] = 0;
+        for(i = 0; i < BLKSIZE; i++)
+        {
+            if(mybuf[i] == '\\')
+            {
+                if(mybuf[i+1] == 'n')
+                {
+                    putchar('\n');
+                    i++;
+                }
+                else
+                {
+                    putchar(mybuf[i]);
+                }
+            }
+            putchar(mybuf[i]);
+        }
+    }
+    close_file(FD);
+}

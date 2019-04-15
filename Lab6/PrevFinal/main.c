@@ -4,7 +4,7 @@ int main(int argc, char *argv[])
 {
     char *diskname = "mydisk";
     char *input, *hold, **path;
-    int (*Farr[17])(void) = {lsdo, chdir, pwd, quit, mdir, creat_file, rm_dir, mysymlink, link, touch, myunlink, mychmod, menu, preopen, pfd, pre_close, my_read};
+    int (*Farr[18])(void) = {lsdo, chdir, pwd, quit, mdir, creat_file, rm_dir, mysymlink, link, touch, myunlink, mychmod, menu, preopen, pfd, pre_close, my_read, my_cat};
     if(argc > 1)
         diskname = argv[1];
     fd = open(diskname, O_RDWR);
