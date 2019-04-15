@@ -79,7 +79,7 @@ int read_file(int fd, char buf[], int bytes)
     // bytes available for read
     avail = size - offset;
 
-    while(bytes > 0 && avail > 0)
+    while(bytes > 0 && avail > -(bytes))
     {
         // Logical block
         lbk = offset / BLKSIZE;
