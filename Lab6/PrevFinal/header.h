@@ -155,12 +155,12 @@ int pre_close();
 
 // Read, Cat
 int checkints(char *s);
-int getIndirects(int device, int bno);
 int my_read();
 int read_file(int fd, char buf[], int bytes);
 int my_cat();
 
 // Write, Cp
-
+int write_file();
+int mywrite(int fd, char buf[], int nbytes);
 
 #endif

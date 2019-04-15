@@ -25,7 +25,13 @@ int mytruncate(MINODE *mip, int mode)
         for(i = 0; i < 256; i++)
         {
             bdallocindirects(device, buf[i]);
+            buf[i] = 0;
         }
+        put_block(device, pip->i_block[13], buf);
+    }
+    for(i = 0; i < 14; i++)
+    {
+        pip->i_block[i] = 0;
     }
     pip->i_mtime = time(NULL);
     pip->i_atime = time(NULL);
@@ -162,7 +168,6 @@ int open_file(char *p1, char *p2)
             new->mptr = pathfollow;
             new->refCount++;
             running->fd[empty] = new;
-            pathfollow->dirty = 1;
             return empty;
         }
         else
