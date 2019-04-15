@@ -138,6 +138,14 @@ int open_file(char *p1, char *p2)
                     printf("Error : file already opened\n");
                     return -1;
                 }
+                if(running->fd[i]->mptr->ino == pathfollow->ino && (check - 1) == 0)
+                {
+                    if(running->fd[i]->mode != 0)
+                    {
+                        printf("Error : file already opened\n");
+                        return -1;
+                    }
+                }
             }
             if(running->fd[i] == 0 && hold)
             {
@@ -253,11 +261,11 @@ int close_file(int fd)
     {
         running->fd[fd] = 0;
         old->refCount--;
-        if(old->refCount == 0)
-        {
-            iput(old->mptr);
-            return 1;
-        }
+        // if(old->refCount == 0)
+        // {
+        iput(old->mptr);
+        //     return 1;
+        // }
         return 1;
     }
     printf("Error : No matching File Descriptor found\n");

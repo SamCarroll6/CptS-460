@@ -50,14 +50,13 @@ int mywrite(int fd, char buf[], int nbytes)
 
     while(nbytes > 0)
     {
-        printf("%d\n", offset);
-        count = 0;
-        cq = buf + offset;
+        count = offset;
+        //cq = buf + offset;
+        cq = buf;
         lbk = offset / BLKSIZE;
         startByte = offset % BLKSIZE;
         if(lbk < 12)
         {
-            printf("%d\n", pip->i_block[lbk]);
             if(pip->i_block[lbk] == 0)
             {
                 pip->i_block[lbk] = balloc(mip->dev);
@@ -68,7 +67,7 @@ int mywrite(int fd, char buf[], int nbytes)
         {
             if(pip->i_block[12] == 0)
             {
-
+                pip->i_block[12] = balloc(mip->dev);
             }
         }
         else
@@ -99,7 +98,11 @@ int mywrite(int fd, char buf[], int nbytes)
             *cp++;
             count++;
         }
-        printf("%s\n", wbuf);
         put_block(mip->dev, block, wbuf);
     }
 }
+
+// int my_cat()
+// {
+
+// }
