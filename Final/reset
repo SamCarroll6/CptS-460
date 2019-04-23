@@ -1,0 +1,7 @@
+rm wanix
+rm eoslib
+rm sdimage
+
+cp copies/wanix ./
+cp copies/sdimage ./
+cp copies/eoslib ./

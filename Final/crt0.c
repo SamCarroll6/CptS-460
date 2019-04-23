@@ -61,6 +61,7 @@ void main0(char *s)
     //printf("s=%s\n", s);
      token(s);
   }
+  showarg(argc, argv);
   //showarg(argc, argv);
   main(argc, argv);
 }
