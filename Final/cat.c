@@ -25,13 +25,14 @@ int main(int argc, char *argv[ ])
             {
                 break;
             }
-            mputc(grab);
+            if(grab != '\r')
+                mputc(grab);
             buf[i] = grab;
             i++;
             if(grab == '\r')
             {
                 mputc('\n');
-                // mputc('\r');
+
                 buf[i] = '\0';
                 buf[i-1] = '\0';
                 // write(1, '\n', 1);
