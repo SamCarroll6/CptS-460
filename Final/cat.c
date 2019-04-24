@@ -10,9 +10,12 @@ int main(int argc, char *argv[ ])
     if(argc > 1)
     {
         fd = open(argv[1], O_RDONLY);
-        while(n = read(fd, buf, 1024))
+        if(fd >= 0)
         {
-            prints(buf);
+            while(n = read(fd, buf, 1024))
+            {
+                prints(buf);
+            }
         }
     }
     else
