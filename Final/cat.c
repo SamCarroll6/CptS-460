@@ -15,9 +15,17 @@ int main(int argc, char *argv[ ])
         {
             while(n = read(fd, buf, 1024))
             {
+                for(i = 0; i < n; i++)
+                {
+                    write(1, &buf[i], 1);
+                    if(buf[i] == '\n')
+                    {
+                        write(1, "\r", 1);
+                    }
+                }
                 // write(1, buf, n);
                 // write(1, "\r", 1);
-                prints(buf);
+                //prints(buf);
             }
             close(fd);
         }
@@ -36,13 +44,13 @@ int main(int argc, char *argv[ ])
                 write(1, &grab, 1);
             if(grab == '\r')
             {
-                write(1, "\n", 1);
+                write(1, "\r\n", 2);
                 write(1, &grab, 1);
                 write(1, buf, i);
                 memset(buf, 0, 1024);
                 i = 0;
-                // write(1, "\n", 1);
-                // write(1, "\r", 1);
+                write(1, "\n", 1);
+                write(1, "\r", 1);
             }
             buf[i] = grab;
             i++;

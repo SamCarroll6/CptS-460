@@ -5,9 +5,11 @@ int main(int argc, char *argv[ ])
     prints("****************************\n");
     prints("          Sams Grep         \n");
     prints("****************************\n");
-    int fd, count, i = 0, c = 0, n = 0, check = 0, c2 = 0;
-    char buf1[1024], pattern[64], grab;
+    int fd, count, i = 0, c = 0, n = 0, check = 0, c2 = 0, ttyout;
+    char buf1[1024], pattern[64], grab, tty[32];
     char line[1024];
+    // gettty(tty);
+    // ttyout = open(tty, O_WRONLY);
     if(argc < 2)
     {
         prints("grep: command error, EX: grep pattern [filename]\n");
@@ -27,6 +29,7 @@ int main(int argc, char *argv[ ])
                 
                 if(grab == 10)
                 {
+                    //prints();
                     line[++i] = 13;
                     if(check)
                     {
@@ -36,6 +39,8 @@ int main(int argc, char *argv[ ])
                     }
                     memset(line, 0, 1024);
                     check = 0;
+                    c2 = 1;
+                    i = 0;
                 }
                 //write(1, buf1, 1);
                 if(line[i] == pattern[n])
@@ -50,7 +55,11 @@ int main(int argc, char *argv[ ])
                 {
                     n = 0;
                 }
-                i++;
+                if(c2 == 0)
+                {
+                    i++;
+                }
+                c2 = 0;
         }
         // while(1)
         // {
@@ -117,13 +126,12 @@ int main(int argc, char *argv[ ])
                 }
 
                 line[i] = grab;
-                    
                 if(grab == 10)
                 {
                     line[++i] = 13;
                     if(check)
                     {
-                        write(1, "\r", 1);
+                        //write(1, "\r", 1);
                         //write(1, "\r", 1);
                         write(1, line, i);
                         //write(1, "\n", 1);
@@ -131,8 +139,9 @@ int main(int argc, char *argv[ ])
                     }
                     memset(line, 0, 1024);
                     check = 0;
-
+                    i = 0;
                 }
+
                     //write(1, buf1, 1);
                 if(line[i] == pattern[n])
                 {
