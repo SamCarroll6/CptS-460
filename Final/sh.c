@@ -1,9 +1,142 @@
 #include "ucode.c"
 
 char *newargs[10];
+char *iargs[10];
+int icount;
 int parseCount;
 
-// Exec works with spaces at front, so only need to parse pipes for pipe value, spaces wont matter.
+
+/************************* Indirects **************************/
+
+int finddelim(char *line, char delim)
+{
+    char *cp;
+    cp = line;
+    int ret = 0;
+    while(*cp && *cp != delim)
+    {
+        *cp++;
+        ret++;
+    }
+    return ret;
+}
+
+void tokenize2(char *line, char delim)
+{
+  char *cp;
+  cp = line;
+  icount = 0;
+  
+  while (*cp != 0){
+       while (*cp == delim) *cp++ = 0;        
+       if (*cp != 0)
+           iargs[icount++] = cp;         
+       while (*cp != delim && *cp != 0) cp++;                  
+       if (*cp != 0)   
+           *cp = 0;                   
+       else 
+            break; 
+       cp++;
+  }
+  iargs[icount] = 0;
+}
+
+void rmspaces2(int num)
+{
+    char *cp;
+    cp = iargs[num];
+    while(*cp == ' ')
+    {
+        *cp++;
+    }
+    iargs[num] = cp;
+}
+
+int do_indirects(int n)
+{
+    int len = strlen(newargs[n]);
+    int i =0, check, fd;
+    char hold[64];
+    strcpy(hold, newargs[n]);
+    check = finddelim(hold, '<');
+    if(check == len)
+    {
+        check = finddelim(hold, '>');
+        if(check == len)
+        {
+            return exec(newargs[n]);
+        }
+        else if(newargs[n][check+1] == '>')
+        {
+            memset(hold, 0, 64);
+            strcpy(hold, newargs[n]);
+            tokenize2(hold, '>');
+            for(i = 0; i < icount; i++)
+            {
+                rmspaces2(i);
+                prints(iargs[i]);
+            }
+            fd = open(iargs[1], O_WRONLY | O_CREAT | O_APPEND);
+            if(fd < 0)
+            {
+                prints("IO Redirection Error, file could not be opened\n");
+                exit(1);
+            }
+            dup2(fd, 1);
+            close(fd);
+            return exec(iargs[0]);
+        }
+        else
+        {
+            memset(hold, 0, 64);
+            strcpy(hold, newargs[n]);
+            tokenize2(hold, '>');
+            for(i = 0; i < icount; i++)
+            {
+                rmspaces2(i);
+                prints(iargs[i]);
+            }
+            fd = open(iargs[1], O_WRONLY | O_CREAT);
+            if(fd < 0)
+            {
+                prints("IO Redirection Error, file could not be opened\n");
+                exit(1);
+            }
+            dup2(fd, 1);
+            close(fd);
+            return exec(iargs[0]);
+        }  
+    }
+    else
+    {
+        memset(hold, 0, 64);
+        strcpy(hold, newargs[n]);
+        tokenize2(hold, '<');
+        for(i = 0; i < icount; i++)
+        {
+            rmspaces2(i);
+            prints(iargs[i]);
+        }
+        fd = open(iargs[1], O_RDONLY);
+        if(fd < 0)
+        {
+            prints("IO Redirection Error, file could not be opened\n");
+            exit(1);
+        }
+        dup2(fd, 0);
+        close(fd);
+        return exec(iargs[0]);
+    }
+    
+    // tokenize2(newargs[n], );
+    // for(i = 0; i < iCount; i++)
+    // {
+    //     rmspaces2();
+    // }
+
+}
+
+/************************* Pipes **************************/
 
 void tokenize(char *line, char delim)
 {
@@ -36,15 +169,6 @@ void rmspaces(int num)
     newargs[num] = cp;
 }
 
-int do_indirects()
-{
-    int i =0;
-    for(i = 0; i < parseCount; i++)
-    {
-
-    }
-}
-
 int do_pipe(int o, int t)
 {
     int i = 1;
@@ -59,19 +183,21 @@ int do_pipe(int o, int t)
     pid = fork();
     if(pid)
     {
-        close(pd[1]);
+        close(pd[1]); // close writer
         dup2(pd[0], 0);
         if(t < parseCount - 1)
         {
             do_pipe(t, t+1);
         }
-        exec(newargs[t]);
+        //exec(newargs[t]);
+        do_indirects(t);
     }
     else
     {
-        close(pd[0]);
+        close(pd[0]); // close reader
         dup2(pd[1], 1);
-        exec(newargs[o]);
+        //exec(newargs[o]);
+        do_indirects(o);
     }
 }
 
@@ -84,7 +210,7 @@ int execute(char *command)
     {
         return do_pipe(0, 1);
     }
-    return exec(command);
+    return do_indirects(0);
 }
 
 //int dopipe(char *command, int)
