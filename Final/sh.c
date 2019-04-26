@@ -41,11 +41,11 @@ int do_indirects()
     int i =0;
     for(i = 0; i < parseCount; i++)
     {
-        
+
     }
 }
 
-int do_pipe()
+int do_pipe(int o, int t)
 {
     int i = 1;
     int pid, pd[2];
@@ -57,18 +57,24 @@ int do_pipe()
     pipe(pd);
     printi(pd[0]);
     printi(pd[1]);
+    printi(parseCount);
     pid = fork();
     if(pid)
     {
         close(pd[1]);
         dup2(pd[0], 0);
-        exec(newargs[1]);
+        if(t < parseCount - 1)
+        {
+            prints("OKay");
+            do_pipe(t, t+1);
+        }
+        exec(newargs[t]);
     }
     else
     {
         close(pd[0]);
         dup2(pd[1], 1);
-        exec(newargs[0]);
+        exec(newargs[o]);
     }
 }
 
@@ -79,7 +85,7 @@ int execute(char *command)
     tokenize(hold, '|');
     if(parseCount > 1)
     {
-        return do_pipe();
+        return do_pipe(0, 1);
     }
     return exec(command);
 }
