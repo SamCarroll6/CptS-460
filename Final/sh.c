@@ -55,9 +55,7 @@ int do_pipe(int o, int t)
         rmspaces(i);
     }
     pipe(pd);
-    printi(pd[0]);
-    printi(pd[1]);
-    printi(parseCount);
+
     pid = fork();
     if(pid)
     {
@@ -65,7 +63,6 @@ int do_pipe(int o, int t)
         dup2(pd[0], 0);
         if(t < parseCount - 1)
         {
-            prints("OKay");
             do_pipe(t, t+1);
         }
         exec(newargs[t]);
