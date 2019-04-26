@@ -36,20 +36,51 @@ void rmspaces(int num)
     newargs[num] = cp;
 }
 
+int do_indirects()
+{
+    int i =0;
+    for(i = 0; i < parseCount; i++)
+    {
+        
+    }
+}
+
+int do_pipe()
+{
+    int i = 1;
+    int pid, pd[2];
+    int status;
+    for(i = 1; i < parseCount; i++)
+    {
+        rmspaces(i);
+    }
+    pipe(pd);
+    printi(pd[0]);
+    printi(pd[1]);
+    pid = fork();
+    if(pid)
+    {
+        close(pd[1]);
+        dup2(pd[0], 0);
+        exec(newargs[1]);
+    }
+    else
+    {
+        close(pd[0]);
+        dup2(pd[1], 1);
+        exec(newargs[0]);
+    }
+}
+
 int execute(char *command)
 {
-    // // int count;
-    // char new[64];
-    // // count = finddelim(command, ' ');
-    // // printi(count);
-    // // strncpy(new, command, count);
-    // // command = &command[count + 1];
-    // // prints(new);
-    // // mputc('\n');
-    // // prints(command);
-    // // mputc('\n');
-    // prints(tokenize(command, ' '));
-    // printf("new: %s, command : %s\n", new, command);
+    char hold[128];
+    strcpy(hold, command);
+    tokenize(hold, '|');
+    if(parseCount > 1)
+    {
+        return do_pipe();
+    }
     return exec(command);
 }
 
@@ -103,11 +134,9 @@ int main(int argc, char *argv[ ])
         }
         else
         {
-            tokenize(command, '|');
-            rmspaces(1);
-            rmspaces(2);
-            printf("HERE : %s\n%s\n%s\n", newargs[0], newargs[1], newargs[2]);
-            id = execute(newargs[2]);
+            strcpy(phold, command);
+
+            id = execute(phold);
             if(id == -1)
             {
                 exit(1);

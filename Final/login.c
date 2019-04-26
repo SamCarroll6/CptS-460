@@ -9,7 +9,7 @@ int main(int argc, char *argv[ ])
     // prints("          Sams Login        \n");
     // prints("****************************\n");    
     int in, out, err, fd, count, i = 0, r = 0, un = 0, p = 0;
-    char username[64], password[64], buf[1024], hold[1024];
+    char username[64], password[64], buf1[1024], hold[1024];
     char uname[64], pass[64];
     char token[64];
 
@@ -20,14 +20,18 @@ int main(int argc, char *argv[ ])
     out = open(argv[1], 1);
     err = open(argv[1], 2);
     
+    printi(in);
+    printi(out);
+    printi(err);
+
     fixtty(argv[1]);
 
     fd = open("/etc/passwd", O_RDONLY);
 
     printf("SAMS LOGIN : Open %s as stdin = 0, stdout = 1, err = 2\n", argv[1]);
 
-    count = read(fd, buf, 1024);
-    strcpy(hold, buf);
+    count = read(fd, buf1, 1024);
+    strcpy(hold, buf1);
 
     while(1)
     {

@@ -65,13 +65,13 @@ int main(int argc, char *argv[ ])
     console = fork();
     if(console)
     {
-        // in2 = open("/dev/ttyS0", O_RDONLY);
-        // out2 = open("/dev/ttyS0", O_WRONLY);
+        in2 = open("/dev/ttyS0", O_RDONLY);
+        out2 = open("/dev/ttyS0", O_WRONLY);
         console2 = fork();
         if(console2)
         {
-            // in3 = open("/dev/ttyS1", O_RDONLY);
-            // out3 = open("/dev/ttyS1", O_WRONLY);
+            in3 = open("/dev/ttyS1", O_RDONLY);
+            out3 = open("/dev/ttyS1", O_WRONLY);
             console3 = fork();
             if(console3)
             {
@@ -79,17 +79,19 @@ int main(int argc, char *argv[ ])
             }
             else
             {
+                write(out3, "Login on port S1\n\r", 19);
                 exec("login /dev/ttyS1");
             }
         }  
         else
         {
+            write(out2, "Login on port S0\n\r", 19);
             exec("login /dev/ttyS0");
         }
     }
     else
     {
+        write(out, "Login on port S0\n\r", 19);
         exec("login /dev/tty0");
     }
-    
 }
