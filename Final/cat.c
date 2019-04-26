@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[ ])
 {
-    char buf[1024], grab, ttyget[32];
+    char buf1[1024], grab, ttyget[32];
     int fd, n, i = 0;
     prints("****************************\n");
     prints("        Sams Cool Cat       \n");
@@ -13,19 +13,19 @@ int main(int argc, char *argv[ ])
         fd = open(argv[1], O_RDONLY);
         if(fd >= 0)
         {
-            while(n = read(fd, buf, 1024))
+            while(n = read(fd, buf1, 1024))
             {
                 for(i = 0; i < n; i++)
                 {
-                    write(1, &buf[i], 1);
-                    if(buf[i] == '\n')
+                    write(1, &buf1[i], 1);
+                    if(buf1[i] == '\n')
                     {
                         write(1, "\r", 1);
                     }
                 }
-                // write(1, buf, n);
+                // write(1, buf1, n);
                 // write(1, "\r", 1);
-                //prints(buf);
+                //prints(buf1);
             }
             close(fd);
         }
@@ -44,15 +44,15 @@ int main(int argc, char *argv[ ])
                 write(1, &grab, 1);
             if(grab == '\r')
             {
-                write(1, "\r\n", 2);
+                write(1, "\n", 2);
                 write(1, &grab, 1);
-                write(1, buf, i);
-                memset(buf, 0, 1024);
+                write(1, buf1, i);
+                memset(buf1, 0, 1024);
                 i = 0;
                 write(1, "\n", 1);
                 write(1, "\r", 1);
             }
-            buf[i] = grab;
+            buf1[i] = grab;
             i++;
         }
     }
