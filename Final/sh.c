@@ -25,30 +25,16 @@ void tokenize(char *line, char delim)
   newargs[parseCount] = 0;
 }
 
-
-// int finddelim(char *command, char delim)
-// {
-//     int len, i = 0;
-//     len = strlen(command);
-//     for(i = 0; i < len; i++)
-//     {
-//         if(command[i] == delim)
-//             return i;
-//     }
-//     return -1;
-// }
-
-// char *tokenize(char *command, char delim)
-// {
-//     char ret[64];
-//     int count = finddelim(command, delim);
-//     prints("Here\n");
-//     strncpy(ret, command, count);
-//     prints("HERE2\n");
-//     command = &command[count+1];
-//     printf("New : %s, command : %s\n", ret, command);
-//     return (char*)ret;
-// }
+void rmspaces(int num)
+{
+    char *cp;
+    cp = newargs[num];
+    while(*cp == ' ')
+    {
+        *cp++;
+    }
+    newargs[num] = cp;
+}
 
 int execute(char *command)
 {
@@ -71,7 +57,7 @@ int execute(char *command)
 
 int main(int argc, char *argv[ ])
 {
-    char command[128], *token, cdhold[128];
+    char command[128], *token, cdhold[128], phold[128];
     int shell = getpid(), pid, status, id;
     // Main shell loop, never ends.
     while(1)
@@ -109,6 +95,7 @@ int main(int argc, char *argv[ ])
         }
 
         pid = fork();
+
         if(pid)
         {
             pid = wait(&status);
@@ -116,7 +103,11 @@ int main(int argc, char *argv[ ])
         }
         else
         {
-            id = execute(command);
+            tokenize(command, '|');
+            rmspaces(1);
+            rmspaces(2);
+            printf("HERE : %s\n%s\n%s\n", newargs[0], newargs[1], newargs[2]);
+            id = execute(newargs[2]);
             if(id == -1)
             {
                 exit(1);
