@@ -40,19 +40,24 @@ int main(int argc, char *argv[ ])
             {
                 break;
             }
-            if(grab != '\r')
-                write(1, &grab, 1);
+            // if(grab != '\r')
+            //     write(1, &grab, 1);
             if(grab == '\r')
             {
-                write(1, "\n", 2);
-                write(1, &grab, 1);
+                // write(1, "\n", 1);
+                // write(1, &grab, 1);
                 write(1, buf1, i);
                 memset(buf1, 0, 1024);
-                i = 0;
-                write(1, "\n", 1);
+                // if(buf1[i] != '\n')
+                //     write(1, "\n", 1);
+                i = -1;
+               // write(1, "\n", 1);
                 write(1, "\r", 1);
             }
-            buf1[i] = grab;
+            else
+            {
+                buf1[i] = grab;
+            }
             i++;
         }
     }
